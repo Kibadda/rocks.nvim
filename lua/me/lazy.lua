@@ -1,54 +1,60 @@
 local M = {}
 
-local group = vim.api.nvim_create_augroup("LazyLoadin", { clear = true })
+---@alias me.lazy.EventOpts { group?: integer, event: string, pattern?: string, callback: function }
+---@alias me.lazy.KeyOpts { mode: string|string[], lhs: string, callback: function }
 
-local function autocmd(event, opts)
-  opts.group = group
-  vim.api.nvim_create_autocmd(event, opts)
-end
-
----@param event string|string[]
----@param callback function
-function M.on_event(event, callback)
-  autocmd(event, {
+---@param opts me.lazy.EventOpts
+local function on_event(opts)
+  vim.api.nvim_create_autocmd(opts.event, {
+    group = opts.group,
+    pattern = opts.pattern,
     callback = function(args)
-      callback(args)
+      opts.callback(args)
 
       return true
     end,
   })
 end
 
----@param ft string|string[]
----@param callback function
-function M.on_ft(ft, callback)
-  autocmd("FileType", {
-    pattern = ft,
-    callback = function(args)
-      callback(args)
+---@param opts me.lazy.KeyOpts
+local function on_key(opts)
+  vim.keymap.set(opts.mode, opts.lhs, function()
+    opts.callback()
 
-      return true
-    end,
-  })
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(opts.lhs, true, false, true), "m", false)
+  end)
 end
 
----@param keys { mode: string|string[], lhs: string }[]
+---@param opts { by_events?: me.lazy.EventOpts[], by_keys?: me.lazy.KeyOpts[] }
 ---@param callback function
-function M.on_key(keys, callback)
-  local function handler(used_key)
-    for _, key in ipairs(keys) do
-      vim.keymap.del(key.mode, key.lhs)
+function M.on(opts, callback)
+  local group = vim.api.nvim_create_augroup("LazyLoad" .. math.ceil(math.random() * 1000), { clear = true })
+
+  local function handler()
+    if opts.by_keys then
+      for _, key in ipairs(opts.by_keys) do
+        vim.keymap.del(key.mode, key.lhs)
+      end
     end
 
-    callback()
+    vim.api.nvim_del_augroup_by_id(group)
 
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(used_key.lhs, true, false, true), "m", false)
+    callback()
   end
 
-  for _, key in ipairs(keys) do
-    vim.keymap.set(key.mode, key.lhs, function()
-      handler(key)
-    end)
+  if opts.by_events then
+    for _, event in ipairs(opts.by_events) do
+      event.group = group
+      event.callback = handler
+      on_event(event)
+    end
+  end
+
+  if opts.by_keys then
+    for _, key in ipairs(opts.by_keys) do
+      key.callback = handler
+      on_key(key)
+    end
   end
 end
 

@@ -1,11 +1,13 @@
-require("me.lazy").on_key({
-  { mode = "n", lhs = "<Leader>f" },
-  { mode = "n", lhs = "<Leader>F" },
-  { mode = "n", lhs = "<Leader>b" },
-  { mode = "n", lhs = "<Leader>sg" },
-  { mode = "n", lhs = "<Leader>sh" },
-  { mode = "n", lhs = "<Leader>sr" },
-  { mode = "i", lhs = "<M-e>" },
+require("me.lazy").on({
+  by_keys = {
+    { mode = "n", lhs = "<Leader>f" },
+    { mode = "n", lhs = "<Leader>F" },
+    { mode = "n", lhs = "<Leader>b" },
+    { mode = "n", lhs = "<Leader>sg" },
+    { mode = "n", lhs = "<Leader>sh" },
+    { mode = "n", lhs = "<Leader>sr" },
+    { mode = "i", lhs = "<M-e>" },
+  },
 }, function()
   local pick = require "mini.pick"
 
@@ -92,6 +94,7 @@ require("me.lazy").on_key({
   vim.keymap.set("i", "<M-e>", "<Cmd>Pick emoji<CR>", { desc = "Emoji" })
 end)
 
+-- TODO: find a way to lazy load via this
 vim.api.nvim_create_autocmd("BufEnter", {
   group = vim.api.nvim_create_augroup("DirectoryEdit", { clear = true }),
   callback = function(args)

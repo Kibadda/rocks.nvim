@@ -1,4 +1,8 @@
-require("me.lazy").on_event("InsertEnter", function()
+require("me.lazy").on({
+  by_events = {
+    { event = "InsertEnter" },
+  },
+}, function()
   local Rule = require "nvim-autopairs.rule"
   local cond = require "nvim-autopairs.conds"
 

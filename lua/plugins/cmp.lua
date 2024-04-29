@@ -1,4 +1,8 @@
-require("me.lazy").on_event("InsertEnter", function()
+require("me.lazy").on({
+  by_events = {
+    { event = "InsertEnter" },
+  },
+}, function()
   local cmp = require "cmp"
   local lspkind = require "lspkind"
 
