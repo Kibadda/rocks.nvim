@@ -8,6 +8,9 @@ require("me.lazy").on({
     { mode = "n", lhs = "<Leader>sr" },
     { mode = "i", lhs = "<M-e>" },
   },
+  by_cmds = {
+    { name = "E" },
+  },
 }, function()
   local pick = require "mini.pick"
 
@@ -92,6 +95,13 @@ require("me.lazy").on({
   vim.keymap.set("n", "<Leader>sh", "<Cmd>Pick help<CR>", { desc = "Help" })
   vim.keymap.set("n", "<Leader>sr", "<Cmd>Pick resume<CR>", { desc = "Resume" })
   vim.keymap.set("i", "<M-e>", "<Cmd>Pick emoji<CR>", { desc = "Emoji" })
+
+  vim.api.nvim_create_user_command("E", function()
+    vim.cmd.edit "%:h"
+  end, {
+    bang = false,
+    nargs = 0,
+  })
 end)
 
 -- TODO: find a way to lazy load via this

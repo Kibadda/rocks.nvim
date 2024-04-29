@@ -14,10 +14,3 @@ end, {
   nargs = 0,
   desc = "Bdelete",
 })
-
-vim.api.nvim_create_user_command("E", function()
-  vim.cmd.edit "%:h"
-end, {
-  bang = false,
-  nargs = 0,
-})
