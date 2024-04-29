@@ -35,6 +35,8 @@ cmp-buffer = { git = "hrsh7th/cmp-buffer" }
 "lspkind.nvim" = { git = "onsails/lspkind.nvim" }
 vim-kitty-navigator = { git = "knubie/vim-kitty-navigator" }
 nvim-recorder = { git = "chrisgrieser/nvim-recorder" }
+vim-pasta = { git = "ku1ik/vim-pasta" }
+vim-repeat = { git = "tpope/vim-repeat" }
 
 [config]
 plugins_dir = "plugins/"
