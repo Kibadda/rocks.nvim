@@ -1,4 +1,6 @@
-require("which-key").setup {
+local whichkey = require "which-key"
+
+whichkey.setup {
   plugins = {
     spelling = {
       enabled = true,
@@ -7,5 +9,13 @@ require("which-key").setup {
   },
   window = {
     border = "single",
+  },
+}
+
+whichkey.register {
+  ["<Leader>"] = {
+    name = "<Leader>",
+    s = { name = "Search" },
+    S = { name = "Session" },
   },
 }
