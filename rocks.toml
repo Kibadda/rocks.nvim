@@ -22,6 +22,7 @@
 "mini.pick" = "0.12.0"
 "nui.nvim" = "0.3.0"
 nvim-web-devicons = "0.99"
+"todo-comments.nvim" = "1.2.0"
 
 nvim-autopairs = "scm"
 "plenary.nvim" = "scm"
