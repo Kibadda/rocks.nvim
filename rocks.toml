@@ -26,8 +26,14 @@ nvim-web-devicons = "0.99"
 
 nvim-autopairs = "scm"
 "plenary.nvim" = "scm"
+
 tree-sitter-php = "scm"
 tree-sitter-php_only = "scm"
+tree-sitter-html = "scm"
+tree-sitter-html_tags = "scm"
+tree-sitter-javascript = "scm"
+tree-sitter-typescript = "scm"
+tree-sitter-ecma = "scm"
 
 nvim-cmp = { git = "hrsh7th/nvim-cmp" }
 cmp-nvim-lsp = { git = "hrsh7th/cmp-nvim-lsp" }
@@ -38,6 +44,7 @@ vim-kitty-navigator = { git = "knubie/vim-kitty-navigator" }
 nvim-recorder = { git = "chrisgrieser/nvim-recorder" }
 vim-pasta = { git = "ku1ik/vim-pasta" }
 vim-repeat = { git = "tpope/vim-repeat" }
+nvim-treesitter = { git = "nvim-treesitter/nvim-treesitter", branch = "main" }
 
 [config]
 plugins_dir = "plugins/"
