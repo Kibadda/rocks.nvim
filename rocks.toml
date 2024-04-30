@@ -26,6 +26,7 @@ nvim-web-devicons = "0.99"
 
 nvim-autopairs = "scm"
 "plenary.nvim" = "scm"
+"mini.diff" = "scm"
 
 tree-sitter-php = "scm"
 tree-sitter-php_only = "scm"

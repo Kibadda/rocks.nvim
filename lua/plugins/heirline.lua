@@ -56,18 +56,21 @@ require("heirline").setup {
     },
     {
       init = function(self)
-        self.namespace = vim.api.nvim_get_namespaces()["gitsitngs_extmark_signs_"]
+        self.namespace = vim.api.nvim_get_namespaces()["MiniDiffViz"]
+        self.extmarks = {}
+
+        if self.namespace then
+          for _, extmark in ipairs(vim.api.nvim_buf_get_extmarks(0, self.namespace, 0, -1, { details = true })) do
+            self.extmarks[extmark[2]] = extmark[4]
+          end
+        end
       end,
       provider = function()
         return " ▏"
       end,
       hl = function(self)
-        if self.namespace then
-          local extmark = vim.api.nvim_buf_get_extmark_by_id(0, self.namespace, vim.v.lnum, { details = true })
-
-          if extmark and extmark[3] then
-            return extmark[3].sign_hl_group
-          end
+        if self.namespace and self.extmarks[vim.v.lnum - 1] then
+          return self.extmarks[vim.v.lnum - 1].sign_hl_group
         end
 
         return "@comment"
