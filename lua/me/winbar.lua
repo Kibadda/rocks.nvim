@@ -8,7 +8,7 @@ return function()
   local winbar = vim.fn.fnamemodify(vim.fn.expand "%", ":.") .. ":%L"
 
   if not ok then
-    return "%=" .. winbar
+    return winbar
   end
 
   local icon, hl = devicons.get_icon(vim.fn.fnamemodify(vim.fn.expand "%", ":t"), nil, { default = false })
@@ -19,5 +19,5 @@ return function()
     icon = "%#" .. hl .. "#" .. icon .. "%*"
   end
 
-  return "%=" .. icon .. winbar .. " "
+  return " " .. icon .. winbar
 end
