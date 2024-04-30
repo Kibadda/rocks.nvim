@@ -107,6 +107,7 @@ end)
 -- TODO: find a way to lazy load via this
 vim.api.nvim_create_autocmd("BufEnter", {
   group = vim.api.nvim_create_augroup("DirectoryEdit", { clear = true }),
+  pattern = "*/",
   callback = function(args)
     if vim.fn.isdirectory(args.file) == 1 then
       vim.cmd.bdelete()
