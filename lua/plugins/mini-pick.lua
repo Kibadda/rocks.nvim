@@ -26,7 +26,7 @@ require("me.lazy").on({
     },
   }
 
-  pick.registry.emoji = function()
+  function pick.registry.emoji()
     local emojis = require "me.data.emoji"
 
     for _, r in ipairs(emojis) do
@@ -50,13 +50,48 @@ require("me.lazy").on({
     }
   end
 
-  pick.registry.files = function(opts)
-    local vcs = not opts or opts.vcs ~= false
+  function pick.registry.buffers()
+    pick.builtin.buffers({}, {
+      mappings = {
+        wipeout = {
+          char = "<C-d>",
+          func = function()
+            local bufnr = pick.get_picker_matches().current.bufnr
+            if vim.api.nvim_buf_is_valid(bufnr) then
+              vim.api.nvim_buf_delete(bufnr, {})
+            end
+          end,
+        },
+        files = {
+          char = "<C-t>",
+          func = function()
+            pick.registry.files()
+          end,
+        },
+      },
+    })
+  end
+
+  function pick.registry.files(opts)
+    opts = opts or {}
+
+    local vcs = opts.vcs ~= false
+    local query = opts.query
 
     local command = { "rg", "--files", "--no-follow", "--color=never", "--hidden" }
 
     if not vcs then
       table.insert(command, "--no-ignore-vcs")
+    end
+
+    if query then
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "MiniPickStart",
+        once = true,
+        callback = function()
+          pick.set_picker_query(query)
+        end,
+      })
     end
 
     pick.builtin.cli({
@@ -73,15 +108,15 @@ require("me.lazy").on({
     }, {
       source = {
         name = vcs and "Files" or "All Files",
-        show = function(bufnr, items, query)
-          pick.default_show(bufnr, items, query, { show_icons = true })
+        show = function(bufnr, items, que)
+          pick.default_show(bufnr, items, que, { show_icons = true })
         end,
       },
       mappings = {
         toggle = {
           char = "<C-t>",
           func = function()
-            pick.registry.files { vcs = not vcs }
+            pick.registry.files { vcs = not vcs, query = query }
           end,
         },
       },
@@ -97,7 +132,7 @@ require("me.lazy").on({
   vim.keymap.set("i", "<M-e>", "<Cmd>Pick emoji<CR>", { desc = "Emoji" })
 
   vim.api.nvim_create_user_command("E", function()
-    vim.cmd.edit "%:h"
+    vim.cmd.edit(vim.fn.fnamemodify(vim.fn.expand "%", ":h") .. "/")
   end, {
     bang = false,
     nargs = 0,
@@ -110,26 +145,22 @@ vim.api.nvim_create_autocmd("BufEnter", {
   pattern = "*/",
   callback = function(args)
     if vim.fn.isdirectory(args.file) == 1 then
-      vim.cmd.bdelete()
+      vim.cmd.bwipeout()
 
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "MiniPickStart",
-        once = true,
-        callback = function()
-          local path
+      local path
 
-          ---@diagnostic disable-next-line:undefined-field
-          if args.file == vim.uv.cwd() then
-            path = ""
-          else
-            path = vim.fn.fnamemodify(args.file, ":.") .. "/"
-          end
+      ---@diagnostic disable-next-line:undefined-field
+      if args.file == vim.uv.cwd() then
+        path = ""
+      else
+        path = vim.fn.fnamemodify(args.file, ":.") .. "/"
+      end
 
-          require("mini.pick").set_picker_query { path }
-        end,
-      })
+      path = vim.split(path, "")
 
-      require("mini.pick").registry.files()
+      table.insert(path, 1, "^")
+
+      require("mini.pick").registry.files { query = path }
     end
   end,
 })
