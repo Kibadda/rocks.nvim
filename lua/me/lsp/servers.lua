@@ -1,4 +1,4 @@
----@type { filetypes: string[], root_markers: string[], config: vim.lsp.ClientConfig }[]
+---@type me.lsp.ServerConfig[]
 local servers = {
   {
     filetypes = { "lua" },
@@ -103,7 +103,4 @@ local servers = {
   },
 }
 
-local lsp = require "me.lsp"
-for _, server in ipairs(servers) do
-  lsp.register(server)
-end
+return servers

@@ -11,13 +11,19 @@ require("mason").setup {
 
 vim.keymap.set("n", "<Leader>M", "<Cmd>Mason<CR>", { desc = "Mason" })
 
-local installed = require("mason-registry").get_installed_package_names()
+local registry = require "mason-registry"
+local installed = registry.get_installed_package_names()
 
-for _, name in ipairs {
-  "lua-language-server",
-  "stylua",
-} do
+local function install(name)
   if not vim.tbl_contains(installed, name) then
-    require("mason-registry").get_package(name):install()
+    registry.get_package(name):install()
   end
+end
+
+for _, server in ipairs(require "me.lsp.servers") do
+  install(server.config.name or server.config.cmd[1])
+end
+
+for _, tool in ipairs { "stylua" } do
+  install(tool)
 end

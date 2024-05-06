@@ -36,4 +36,8 @@ vim.diagnostic.config {
 
 require "me.lsp.attach"
 require "me.lsp.progress"
-require "me.lsp.servers"
+
+local lsp = require "me.lsp"
+for _, server in ipairs(require "me.lsp.servers") do
+  lsp.register(server)
+end
