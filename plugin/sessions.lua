@@ -1,8 +1,8 @@
-if vim.g.loaded_session then
+if vim.g.loaded_sessions then
   return
 end
 
-vim.g.loaded_session = 1
+vim.g.loaded_sessions = 1
 
 vim.g.session_dir = vim.fn.stdpath "data" .. "/session"
 
