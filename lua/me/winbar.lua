@@ -5,7 +5,11 @@ return function()
     return ""
   end
 
-  local winbar = "./" .. vim.fn.fnamemodify(vim.fn.expand "%", ":.") .. ":%L"
+  local winbar = vim.fn.fnamemodify(vim.fn.expand "%", ":.") .. ":%L"
+
+  if winbar:sub(1, 1) ~= "/" then
+    winbar = "./" .. winbar
+  end
 
   if not ok then
     return winbar
