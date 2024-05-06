@@ -15,8 +15,6 @@ local function on_event(opts)
       vim.api.nvim_exec_autocmds(opts.event, {
         buffer = args.buf,
       })
-
-      return true
     end,
   })
 end
