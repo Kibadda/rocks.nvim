@@ -1,8 +1,8 @@
 local M = {}
 
 ---@alias me.lazy.EventOpts { group?: integer, event: string, pattern?: string, callback: function }
----@alias me.lazy.KeyOpts { mode: string|string[], lhs: string, callback: function }
----@alias me.lazy.CmdOpts { name: string, opts?: vim.api.keyset.user_command , callback: function }
+---@alias me.lazy.KeyOpts { mode: string|string[], lhs: string, rhs?: string|function, callback: function, desc?: string }
+---@alias me.lazy.CmdOpts { name: string, opts?: vim.api.keyset.user_command, command?: function, callback: function }
 
 ---@param opts me.lazy.EventOpts
 local function on_event(opts)
@@ -27,7 +27,7 @@ local function on_key(opts)
     opts.callback()
 
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(opts.lhs, true, false, true), "m", false)
-  end)
+  end, { desc = opts.desc })
 end
 
 ---@param opts me.lazy.CmdOpts
@@ -48,6 +48,10 @@ function M.on(opts, callback)
     if opts.by_keys then
       for _, key in ipairs(opts.by_keys) do
         vim.keymap.del(key.mode, key.lhs)
+
+        if key.rhs then
+          vim.keymap.set(key.mode, key.lhs, key.rhs, { desc = key.desc })
+        end
       end
     end
 
@@ -56,6 +60,10 @@ function M.on(opts, callback)
     if opts.by_cmds then
       for _, cmd in ipairs(opts.by_cmds) do
         vim.api.nvim_del_user_command(cmd.name)
+
+        if cmd.command then
+          vim.api.nvim_create_user_command(cmd.name, cmd.command, cmd.opts)
+        end
       end
     end
 

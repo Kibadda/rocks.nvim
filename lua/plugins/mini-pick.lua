@@ -1,15 +1,24 @@
 require("me.lazy").on({
   by_keys = {
-    { mode = "n", lhs = "<Leader>f" },
-    { mode = "n", lhs = "<Leader>F" },
-    { mode = "n", lhs = "<Leader>b" },
-    { mode = "n", lhs = "<Leader>sg" },
-    { mode = "n", lhs = "<Leader>sh" },
-    { mode = "n", lhs = "<Leader>sr" },
-    { mode = "i", lhs = "<M-e>" },
+    { mode = "n", lhs = "<Leader>f", rhs = "<Cmd>Pick files<CR>", desc = "Find Files" },
+    { mode = "n", lhs = "<Leader>F", rhs = "<Cmd>Pick files vcs=false<CR>", desc = "Find All Files" },
+    { mode = "n", lhs = "<Leader>b", rhs = "<Cmd>Pick buffers<CR>", desc = "Find Buffer" },
+    { mode = "n", lhs = "<Leader>sg", rhs = "<Cmd>Pick grep_live<CR>", desc = "Live Grep" },
+    { mode = "n", lhs = "<Leader>sh", rhs = "<Cmd>Pick help<CR>", desc = "Help" },
+    { mode = "n", lhs = "<Leader>sr", rhs = "<Cmd>Pick resume<CR>", desc = "Resume" },
+    { mode = "i", lhs = "<M-e>", rhs = "<Cmd>Pick emoji<CR>", desc = "Emoji" },
   },
   by_cmds = {
-    { name = "E" },
+    {
+      name = "E",
+      command = function()
+        vim.cmd.edit(vim.fn.fnamemodify(vim.fn.expand "%", ":h") .. "/")
+      end,
+      opts = {
+        bang = false,
+        nargs = 0,
+      },
+    },
   },
   by_events = {
     { event = "BufEnter", pattern = "*/" },
@@ -125,21 +134,6 @@ require("me.lazy").on({
       },
     })
   end
-
-  vim.keymap.set("n", "<Leader>f", "<Cmd>Pick files<CR>", { desc = "Find Files" })
-  vim.keymap.set("n", "<Leader>F", "<Cmd>Pick files vcs=false<CR>", { desc = "Find All Files" })
-  vim.keymap.set("n", "<Leader>b", "<Cmd>Pick buffers<CR>", { desc = "Find Buffer" })
-  vim.keymap.set("n", "<Leader>sg", "<Cmd>Pick grep_live<CR>", { desc = "Live Grep" })
-  vim.keymap.set("n", "<Leader>sh", "<Cmd>Pick help<CR>", { desc = "Help" })
-  vim.keymap.set("n", "<Leader>sr", "<Cmd>Pick resume<CR>", { desc = "Resume" })
-  vim.keymap.set("i", "<M-e>", "<Cmd>Pick emoji<CR>", { desc = "Emoji" })
-
-  vim.api.nvim_create_user_command("E", function()
-    vim.cmd.edit(vim.fn.fnamemodify(vim.fn.expand "%", ":h") .. "/")
-  end, {
-    bang = false,
-    nargs = 0,
-  })
 
   vim.api.nvim_create_autocmd("BufEnter", {
     group = vim.api.nvim_create_augroup("DirectoryEdit", { clear = true }),
