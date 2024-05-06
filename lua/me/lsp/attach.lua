@@ -127,6 +127,20 @@ autocmd("LspAttach", {
           vim.b[bufnr].formatter = vim.lsp.buf.format
         end,
       },
+      {
+        lhs = "<Leader>lj",
+        rhs = function()
+          vim.diagnostic.goto_next()
+        end,
+        desc = "Next diagnostic",
+      },
+      {
+        lhs = "<Leader>lk",
+        rhs = function()
+          vim.diagnostic.goto_prev()
+        end,
+        desc = "Previous diagnostic",
+      },
     }
 
     for _, mapping in ipairs(maps) do
