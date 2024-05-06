@@ -46,6 +46,7 @@ vim-kitty-navigator = { git = "knubie/vim-kitty-navigator" }
 nvim-recorder = { git = "chrisgrieser/nvim-recorder" }
 vim-pasta = { git = "ku1ik/vim-pasta" }
 vim-repeat = { git = "tpope/vim-repeat" }
+vim-dotenv = { git = "tpope/vim-dotenv" }
 nvim-treesitter = { git = "nvim-treesitter/nvim-treesitter", branch = "main" }
 "nvim-colorizer.lua" = { git = "norcalli/nvim-colorizer.lua" }
 
