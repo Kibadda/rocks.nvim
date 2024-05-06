@@ -36,6 +36,8 @@ tree-sitter-html_tags = "scm"
 tree-sitter-javascript = "scm"
 tree-sitter-typescript = "scm"
 tree-sitter-ecma = "scm"
+tree-sitter-query = "scm"
+tree-sitter-toml = "scm"
 
 nvim-cmp = { git = "hrsh7th/nvim-cmp" }
 cmp-nvim-lsp = { git = "hrsh7th/cmp-nvim-lsp" }

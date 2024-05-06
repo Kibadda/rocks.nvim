@@ -26,7 +26,7 @@ require("nvim-treesitter").setup()
 
 vim.api.nvim_create_autocmd("FileType", {
   group = group,
-  pattern = { "smarty", "php", "typescript", "javascript", "html" },
+  pattern = { "smarty", "php", "typescript", "javascript", "html", "toml", "query" },
   callback = function(args)
     vim.treesitter.start()
     vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
