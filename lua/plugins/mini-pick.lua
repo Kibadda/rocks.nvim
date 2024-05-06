@@ -11,6 +11,9 @@ require("me.lazy").on({
   by_cmds = {
     { name = "E" },
   },
+  by_events = {
+    { event = "BufEnter", pattern = "*/" },
+  },
 }, function()
   local pick = require "mini.pick"
 
@@ -137,30 +140,29 @@ require("me.lazy").on({
     bang = false,
     nargs = 0,
   })
-end)
 
--- TODO: find a way to lazy load via this
-vim.api.nvim_create_autocmd("BufEnter", {
-  group = vim.api.nvim_create_augroup("DirectoryEdit", { clear = true }),
-  pattern = "*/",
-  callback = function(args)
-    if vim.fn.isdirectory(args.file) == 1 then
-      vim.cmd.bwipeout()
+  vim.api.nvim_create_autocmd("BufEnter", {
+    group = vim.api.nvim_create_augroup("DirectoryEdit", { clear = true }),
+    pattern = "*/",
+    callback = function(args)
+      if vim.fn.isdirectory(args.file) == 1 then
+        vim.cmd.bwipeout()
 
-      local path
+        local path
 
-      ---@diagnostic disable-next-line:undefined-field
-      if args.file == vim.uv.cwd() then
-        path = ""
-      else
-        path = vim.fn.fnamemodify(args.file, ":.") .. "/"
+        ---@diagnostic disable-next-line:undefined-field
+        if args.file == vim.uv.cwd() then
+          path = ""
+        else
+          path = vim.fn.fnamemodify(args.file, ":.") .. "/"
+        end
+
+        path = vim.split(path, "")
+
+        table.insert(path, 1, "^")
+
+        pick.registry.files { query = path }
       end
-
-      path = vim.split(path, "")
-
-      table.insert(path, 1, "^")
-
-      require("mini.pick").registry.files { query = path }
-    end
-  end,
-})
+    end,
+  })
+end)

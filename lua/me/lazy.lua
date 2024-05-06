@@ -12,6 +12,10 @@ local function on_event(opts)
     callback = function(args)
       opts.callback(args)
 
+      vim.api.nvim_exec_autocmds(opts.event, {
+        buffer = args.buf,
+      })
+
       return true
     end,
   })
