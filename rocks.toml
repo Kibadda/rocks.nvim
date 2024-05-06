@@ -47,6 +47,7 @@ nvim-recorder = { git = "chrisgrieser/nvim-recorder" }
 vim-pasta = { git = "ku1ik/vim-pasta" }
 vim-repeat = { git = "tpope/vim-repeat" }
 nvim-treesitter = { git = "nvim-treesitter/nvim-treesitter", branch = "main" }
+"nvim-colorizer.lua" = { git = "norcalli/nvim-colorizer.lua" }
 
 [config]
 plugins_dir = "plugins/"
