@@ -5,14 +5,23 @@ return function()
     return ""
   end
 
-  local winbar = vim.fn.fnamemodify(vim.fn.expand "%", ":.") .. ":%L"
+  local path = vim.fn.fnamemodify(vim.fn.expand "%", ":.")
 
-  if winbar:sub(1, 1) ~= "/" then
-    winbar = "./" .. winbar
+  if path:len() == 0 then
+    return ""
   end
 
+  local filename = vim.fs.basename(path)
+  path = vim.fs.dirname(path)
+
+  if path:sub(1, 1) ~= "/" and path ~= "." then
+    path = "./" .. path
+  end
+
+  path = path .. "/%#WinbarFilename#" .. filename .. "%*"
+
   if not ok then
-    return winbar
+    return path .. ":%L"
   end
 
   local icon, hl = devicons.get_icon(vim.fn.fnamemodify(vim.fn.expand "%", ":t"), nil, { default = false })
@@ -23,5 +32,5 @@ return function()
     icon = "%#" .. hl .. "#" .. icon .. "%*"
   end
 
-  return " " .. icon .. winbar
+  return " " .. icon .. path .. ":%L"
 end

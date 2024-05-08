@@ -479,6 +479,7 @@ local theme = {
   ["@tag.delimiter"] = { fg = colors.black },
   TreesitterContextBottom = { underline = true, special = "#928374" },
   TreesitterContextLineNumberBottom = { link = "TreesitterContextBottom" },
+  WinbarFilename = { fg = "#A5B4FC" },
 }
 for k, v in pairs(theme) do
   vim.api.nvim_set_hl(0, k, v)
