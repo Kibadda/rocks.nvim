@@ -4,20 +4,27 @@ local progress_windows = {}
 local function show_progress(win, buf, data)
   local ttext = {}
 
-  if data.result.token and progress_windows[data.result.token] and progress_windows[data.result.token].client then
-    table.insert(ttext, progress_windows[data.result.token].client.name .. ":")
+  local client
+  if not progress_windows[data.params.token] then
+    client = vim.lsp.get_client_by_id(data.client_id)
+  else
+    client = progress_windows[data.params.token].client
   end
 
-  if data.result.value.title then
-    table.insert(ttext, data.result.value.title)
+  if data.params.token and client then
+    table.insert(ttext, client.name .. ":")
   end
 
-  if data.result.value.percentage and data.result.value.percentage > 0 then
-    table.insert(ttext, ("(%s%%)"):format(data.result.value.percentage))
+  if data.params.value.title then
+    table.insert(ttext, data.params.value.title)
   end
 
-  if data.result.value.message then
-    table.insert(ttext, data.result.value.message)
+  if data.params.value.percentage and data.params.value.percentage > 0 then
+    table.insert(ttext, ("(%s%%)"):format(data.params.value.percentage))
+  end
+
+  if data.params.value.message then
+    table.insert(ttext, data.params.value.message)
   end
 
   local text = table.concat(ttext, " ")
@@ -25,8 +32,8 @@ local function show_progress(win, buf, data)
   local col = vim.o.columns - text_width
 
   local row
-  if progress_windows[data.result.token] then
-    row = progress_windows[data.result.token].row
+  if progress_windows[data.params.token] then
+    row = progress_windows[data.params.token].row
   else
     row = vim.o.lines - 3 - vim.tbl_count(progress_windows)
   end
@@ -43,11 +50,11 @@ local function show_progress(win, buf, data)
   if not win or not vim.api.nvim_win_is_valid(win) then
     win = vim.api.nvim_open_win(buf, false, win_options)
 
-    progress_windows[data.result.token] = {
+    progress_windows[data.params.token] = {
       win = win,
       buf = buf,
       row = row,
-      client = vim.lsp.get_client_by_id(data.client_id),
+      client = client,
     }
   else
     vim.api.nvim_win_set_config(win, win_options)
@@ -59,7 +66,7 @@ end
 vim.api.nvim_create_autocmd("LspProgress", {
   group = vim.api.nvim_create_augroup("LspProgress", { clear = true }),
   callback = function(args)
-    local token = args.data.result.token
+    local token = args.data.params.token
 
     if args.file == "begin" then
       show_progress(nil, vim.api.nvim_create_buf(false, true), args.data)
