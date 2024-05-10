@@ -1,4 +1,4 @@
-require("me.lazy").on({
+require("me.lazy").on("mini-pick", {
   by_keys = {
     { mode = "n", lhs = "<Leader>f", rhs = "<Cmd>Pick files<CR>", desc = "Find Files" },
     { mode = "n", lhs = "<Leader>F", rhs = "<Cmd>Pick files vcs=false<CR>", desc = "Find All Files" },

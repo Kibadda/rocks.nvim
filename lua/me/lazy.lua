@@ -1,4 +1,7 @@
-local M = {}
+local M = {
+  ---@type table<string, function>
+  lazy_loaders = {},
+}
 
 ---@alias me.lazy.EventOpts { group?: integer, event: string, pattern?: string, callback: function }
 ---@alias me.lazy.KeyOpts { mode: string|string[], lhs: string, rhs?: string|function, callback: function, desc?: string }
@@ -37,10 +40,11 @@ local function on_cmd(opts)
   end, opts.opts or {})
 end
 
+---@param name string
 ---@param opts { by_events?: me.lazy.EventOpts[], by_keys?: me.lazy.KeyOpts[], by_cmds?: me.lazy.CmdOpts[] }
 ---@param callback function
-function M.on(opts, callback)
-  local group = vim.api.nvim_create_augroup("LazyLoad" .. math.ceil(math.random() * 1000), { clear = true })
+function M.on(name, opts, callback)
+  local group = vim.api.nvim_create_augroup("LazyLoad" .. name, { clear = true })
 
   local function handler()
     if opts.by_keys then
@@ -65,6 +69,8 @@ function M.on(opts, callback)
       end
     end
 
+    M.lazy_loaders[name] = nil
+
     callback()
   end
 
@@ -88,6 +94,15 @@ function M.on(opts, callback)
       cmd.callback = handler
       on_cmd(cmd)
     end
+  end
+
+  M.lazy_loaders[name] = handler
+end
+
+---@param name string
+function M.load(name)
+  if M.lazy_loaders[name] then
+    M.lazy_loaders[name]()
   end
 end
 

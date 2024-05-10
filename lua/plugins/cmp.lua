@@ -1,4 +1,4 @@
-require("me.lazy").on({
+require("me.lazy").on("cmp", {
   by_events = {
     { event = "InsertEnter" },
   },

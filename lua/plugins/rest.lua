@@ -1,4 +1,4 @@
-require("me.lazy").on({
+require("me.lazy").on("rest", {
   by_events = {
     { event = "FileType", pattern = "http" },
   },

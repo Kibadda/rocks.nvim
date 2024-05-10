@@ -1,4 +1,4 @@
-require("me.lazy").on({
+require("me.lazy").on("autopairs", {
   by_events = {
     { event = "InsertEnter" },
   },

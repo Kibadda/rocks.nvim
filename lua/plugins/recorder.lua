@@ -1,4 +1,4 @@
-require("me.lazy").on({
+require("me.lazy").on("recorder", {
   by_keys = {
     { mode = "n", lhs = "q" },
     { mode = "n", lhs = "Q" },
