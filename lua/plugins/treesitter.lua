@@ -25,6 +25,7 @@ vim.opt.runtimepath:append(path)
 local install = {
   "php",
   "php_only",
+  "rust",
   "typescript",
   "javascript",
   "html",

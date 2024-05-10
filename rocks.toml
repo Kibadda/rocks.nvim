@@ -24,6 +24,7 @@
 nvim-web-devicons = "0.99"
 "todo-comments.nvim" = "1.2.0"
 nvim-surround = "2.1.5"
+rustaceanvim = "4.22.10"
 
 nvim-autopairs = "scm"
 "plenary.nvim" = "scm"
