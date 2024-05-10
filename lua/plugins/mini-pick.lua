@@ -38,6 +38,36 @@ require("me.lazy").on("mini-pick", {
     },
   }
 
+  function pick.registry.lsp(opts)
+    opts = opts or {}
+
+    pick.start {
+      source = {
+        name = opts.title or "LSP",
+        items = vim.tbl_map(function(item)
+          item.path = item.filename
+          return item
+        end, opts.items),
+        show = function(bufnr, items, query)
+          pick.default_show(bufnr, items, query, { show_icons = true })
+        end,
+        choose = function(item)
+          pick.default_choose(item)
+        end,
+      },
+      mappings = {
+        qflist = {
+          char = "<C-q>",
+          func = function()
+            vim.fn.setqflist({}, " ", { title = opts.title, items = pick.get_picker_matches().all })
+            pick.stop()
+            vim.cmd.copen()
+          end,
+        },
+      },
+    }
+  end
+
   function pick.registry.emoji()
     local emojis = require "me.data.emoji"
 

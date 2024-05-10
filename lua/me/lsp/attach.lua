@@ -8,6 +8,14 @@ local groups = {
   inlay = augroup("LspAttachInlay", { clear = false }),
 }
 
+local function on_list(opts)
+  require("me.lazy").load "mini-pick"
+  require("mini.pick").registry.lsp {
+    title = "Lsp " .. vim.split(opts.title, " ")[1],
+    items = opts.items,
+  }
+end
+
 autocmd("LspAttach", {
   group = augroup("LspAttach", { clear = true }),
   callback = function(args)
@@ -25,29 +33,35 @@ autocmd("LspAttach", {
       {
         method = methods.textDocument_definition,
         lhs = "gd",
-        rhs = vim.lsp.buf.definition,
+        rhs = function()
+          vim.lsp.buf.definition { on_list = on_list }
+        end,
         desc = "Definition",
       },
       {
         method = methods.textDocument_references,
         lhs = "gr",
         rhs = function()
-          vim.lsp.buf.references {
+          vim.lsp.buf.references({
             includeDeclaration = false,
-          }
+          }, { on_list = on_list })
         end,
         desc = "References",
       },
       {
         method = methods.textDocument_implementation,
         lhs = "gI",
-        rhs = vim.lsp.buf.implementation,
+        rhs = function()
+          vim.lsp.buf.implementation { on_list = on_list }
+        end,
         desc = "Implementations",
       },
       {
         method = methods.textDocument_declaration,
         lhs = "gD",
-        rhs = vim.lsp.buf.declaration,
+        rhs = function()
+          vim.lsp.buf.declaration { on_list = on_list }
+        end,
         desc = "Declaration",
       },
       {
@@ -72,13 +86,17 @@ autocmd("LspAttach", {
       {
         method = methods.textDocument_documentSymbol,
         lhs = "gs",
-        rhs = vim.lsp.buf.document_symbol,
+        rhs = function()
+          vim.lsp.buf.document_symbol { on_list = on_list }
+        end,
         desc = "Document Symbols",
       },
       {
         method = methods.workspace_symbol,
         lhs = "gS",
-        rhs = vim.lsp.buf.workspace_symbol,
+        rhs = function()
+          vim.lsp.buf.workspace_symbol(nil, { on_list = on_list })
+        end,
         desc = "Workspace Symbols",
       },
       {
