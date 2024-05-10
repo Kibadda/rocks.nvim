@@ -8,14 +8,6 @@ local groups = {
   inlay = augroup("LspAttachInlay", { clear = false }),
 }
 
-local function on_list(opts)
-  require("me.lazy").load "mini-pick"
-  require("mini.pick").registry.lsp {
-    title = "Lsp " .. vim.split(opts.title, " ")[1],
-    items = opts.items,
-  }
-end
-
 autocmd("LspAttach", {
   group = augroup("LspAttach", { clear = true }),
   callback = function(args)
@@ -24,6 +16,21 @@ autocmd("LspAttach", {
 
     if not client then
       return
+    end
+
+    ---@param opts vim.lsp.LocationOpts.OnList
+    local function on_list(opts)
+      if #opts.items == 0 then
+        vim.notify("No location found", vim.log.levels.WARN)
+      elseif #opts.items == 1 then
+        vim.lsp.util.jump_to_location(opts.items[1].user_data, client.offset_encoding)
+      else
+        require("me.lazy").load "mini-pick"
+        require("mini.pick").registry.lsp {
+          title = "Lsp " .. vim.split(opts.title, " ")[1],
+          items = opts.items,
+        }
+      end
     end
 
     local methods = vim.lsp.protocol.Methods
