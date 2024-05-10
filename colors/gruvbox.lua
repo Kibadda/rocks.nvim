@@ -382,8 +382,9 @@ local theme = {
   MsgSeparator = { link = "StatusLine" },
   MsgArea = {},
   FloatBorder = { fg = "#928374" },
-  WinBar = { bold = true },
+  WinBar = { link = "Grey" },
   WinBarNC = { link = "Grey" },
+  WinBarFilename = { fg = "#A5B4FC" },
   Grey = { fg = "#928374" },
   Cursor = { reverse = true },
   lCursor = { fg = "#1d2021" },
@@ -479,7 +480,6 @@ local theme = {
   ["@tag.delimiter"] = { fg = colors.black },
   TreesitterContextBottom = { underline = true, special = "#928374" },
   TreesitterContextLineNumberBottom = { link = "TreesitterContextBottom" },
-  WinbarFilename = { fg = "#A5B4FC" },
 }
 for k, v in pairs(theme) do
   vim.api.nvim_set_hl(0, k, v)

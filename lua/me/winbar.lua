@@ -18,7 +18,7 @@ return function()
     path = "./" .. path
   end
 
-  path = path .. "/%#WinbarFilename#" .. filename .. "%*"
+  path = path .. "/%#WinBarFilename#" .. filename .. "%*"
 
   if not ok then
     return path .. ":%L"
