@@ -22,11 +22,24 @@ add_parsers()
 
 vim.opt.runtimepath:append(path)
 
-require("nvim-treesitter").setup()
+local install = {
+  "php",
+  "php_only",
+  "typescript",
+  "javascript",
+  "html",
+  "toml",
+  "lua",
+  "sql",
+}
+
+require("nvim-treesitter").setup {
+  ensure_install = install,
+}
 
 vim.api.nvim_create_autocmd("FileType", {
   group = group,
-  pattern = { "smarty", "php", "typescript", "javascript", "html", "toml", "query" },
+  pattern = vim.list_extend({ "smarty" }, install),
   callback = function(args)
     vim.treesitter.start()
     vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
