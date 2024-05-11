@@ -32,6 +32,7 @@ local install = {
   "toml",
   "lua",
   "sql",
+  "hyprlang",
 }
 
 require("nvim-treesitter").setup {
