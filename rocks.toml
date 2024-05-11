@@ -42,6 +42,7 @@ vim-repeat = { git = "tpope/vim-repeat" }
 vim-dotenv = { git = "tpope/vim-dotenv" }
 nvim-treesitter = { git = "nvim-treesitter/nvim-treesitter", branch = "main" }
 "nvim-colorizer.lua" = { git = "norcalli/nvim-colorizer.lua" }
+vim-kitty = { git = "fladson/vim-kitty" }
 
 [config]
 plugins_dir = "plugins/"
