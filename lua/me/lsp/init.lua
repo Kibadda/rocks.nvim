@@ -28,9 +28,8 @@ end
 function M.register(server)
   server.config.name = server.config.name or server.config.cmd[1]
 
-  server.config.capabilities = vim.tbl_deep_extend("force", vim.lsp.protocol.make_client_capabilities(), {
-    workspace = { didChangeWatchedFiles = { dynamicRegistration = false } },
-  }, server.config.capabilities or {})
+  server.config.capabilities =
+    vim.tbl_deep_extend("force", vim.lsp.protocol.make_client_capabilities(), server.config.capabilities or {})
 
   M.servers[server.config.name] = server
 
