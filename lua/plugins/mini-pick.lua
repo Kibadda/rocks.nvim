@@ -21,7 +21,30 @@ require("me.lazy").on("mini-pick", {
     },
   },
   by_events = {
-    { event = "BufEnter", pattern = "*/" },
+    {
+      event = "BufEnter",
+      pattern = "*/",
+      callback = function(args)
+        if vim.fn.isdirectory(args.file) == 1 then
+          vim.cmd.bwipeout()
+
+          local path
+
+          ---@diagnostic disable-next-line:undefined-field
+          if args.file == vim.uv.cwd() then
+            path = ""
+          else
+            path = vim.fn.fnamemodify(args.file, ":.") .. "/"
+          end
+
+          path = vim.split(path, "")
+
+          table.insert(path, 1, "^")
+
+          MiniPick.registry.files { query = path }
+        end
+      end,
+    },
   },
 }, function()
   local pick = require "mini.pick"
@@ -164,29 +187,4 @@ require("me.lazy").on("mini-pick", {
       },
     })
   end
-
-  vim.api.nvim_create_autocmd("BufEnter", {
-    group = vim.api.nvim_create_augroup("DirectoryEdit", { clear = true }),
-    pattern = "*/",
-    callback = function(args)
-      if vim.fn.isdirectory(args.file) == 1 then
-        vim.cmd.bwipeout()
-
-        local path
-
-        ---@diagnostic disable-next-line:undefined-field
-        if args.file == vim.uv.cwd() then
-          path = ""
-        else
-          path = vim.fn.fnamemodify(args.file, ":.") .. "/"
-        end
-
-        path = vim.split(path, "")
-
-        table.insert(path, 1, "^")
-
-        pick.registry.files { query = path }
-      end
-    end,
-  })
 end)
