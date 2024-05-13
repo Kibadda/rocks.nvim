@@ -33,6 +33,7 @@ local install = {
   "lua",
   "sql",
   "hyprlang",
+  "rust",
 }
 
 require("nvim-treesitter").setup {
