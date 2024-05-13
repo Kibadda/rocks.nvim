@@ -158,7 +158,7 @@ require("me.lazy").on("mini-pick", {
         toggle = {
           char = "<C-t>",
           func = function()
-            pick.registry.files { vcs = not vcs, query = query }
+            pick.registry.files { vcs = not vcs, query = pick.get_picker_query() }
           end,
         },
       },
