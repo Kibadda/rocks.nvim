@@ -17,5 +17,6 @@ whichkey.register {
     name = "<Leader>",
     s = { name = "Search" },
     S = { name = "Session" },
+    l = { name = "Lsp" },
   },
 }
