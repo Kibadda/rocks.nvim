@@ -11,24 +11,24 @@
 # List of Neovim plugins to install alongside their versions.
 # If the plugin name contains a dot then you must add quotes to the key name!
 [plugins]
-"rocks.nvim" = "2.26.0"
-"mini.starter" = "0.9.0"
+"rocks.nvim" = "2.27.1"
 "rocks-config.nvim" = "1.5.0"
+"rocks-git.nvim" = "1.5.0"
 "which-key.nvim" = "1.6.0"
 "mason.nvim" = "1.10.0"
 "conform.nvim" = "5.6.0"
-"rocks-git.nvim" = "1.4.0"
 "heirline.nvim" = "1.0.3"
-"mini.pick" = "0.12.0"
 "nui.nvim" = "0.3.0"
-nvim-web-devicons = "0.99"
+nvim-web-devicons = "0.100"
 "todo-comments.nvim" = "1.2.0"
 nvim-surround = "2.1.5"
-rustaceanvim = "4.22.10"
+rustaceanvim = "4.23.1"
 
+"mini.starter" = "scm"
+"mini.pick" = "scm"
+"mini.diff" = "scm"
 nvim-autopairs = "scm"
 "plenary.nvim" = "scm"
-"mini.diff" = "scm"
 
 nvim-cmp = { git = "hrsh7th/nvim-cmp" }
 cmp-nvim-lsp = { git = "hrsh7th/cmp-nvim-lsp" }
