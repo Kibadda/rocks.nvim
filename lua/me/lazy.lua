@@ -73,7 +73,20 @@ function M.on(name, opts, callback)
       end
     end
 
-    vim.api.nvim_del_augroup_by_id(group)
+    if opts.by_events then
+      vim.api.nvim_del_augroup_by_id(group)
+      group = vim.api.nvim_create_augroup(name, { clear = true })
+
+      for _, event in ipairs(opts.by_events) do
+        if event.callback then
+          vim.api.nvim_create_autocmd(event.event, {
+            group = group,
+            pattern = event.pattern,
+            callback = event.callback,
+          })
+        end
+      end
+    end
 
     if opts.by_cmds then
       for _, cmd in ipairs(opts.by_cmds) do
