@@ -1,7 +1,6 @@
 local Layout = require "nui.layout"
 local Input = require "me.kanban.form.input"
-local Select
-require "me.kanban.form.select"
+local Select = require "me.kanban.form.select"
 
 return function(options)
   local form = {
@@ -47,7 +46,7 @@ return function(options)
 
   local components = {}
   for i, component in ipairs(form.components) do
-    components[i] = Layout.Box(component, { size = math.ceil(components._props.height / total_height * 100) .. "%" })
+    components[i] = Layout.Box(component, { size = math.ceil(component._props.height / total_height * 100) .. "%" })
   end
 
   form.layout = Layout({
