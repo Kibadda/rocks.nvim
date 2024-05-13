@@ -3,9 +3,25 @@ local M = {
   lazy_loaders = {},
 }
 
----@alias me.lazy.EventOpts { group?: integer, event: string, pattern?: string, callback: function }
----@alias me.lazy.KeyOpts { mode: string|string[], lhs: string, rhs?: string|function, callback: function, desc?: string }
----@alias me.lazy.CmdOpts { name: string, opts?: vim.api.keyset.user_command, command?: function, callback: function }
+---@class me.lazy.EventOpts
+---@field event string
+---@field pattern? string
+---@field group? integer
+---@field callback? function
+---@field loader? function
+
+---@class me.lazy.KeyOpts
+---@field mode string|string[]
+---@field lhs string
+---@field rhs? string|function
+---@field desc? string
+---@field loader? function
+
+---@class me.lazy.CmdOpts
+---@field name string
+---@field command? function
+---@field opts? vim.api.keyset.user_command
+---@field loader? function
 
 ---@param opts me.lazy.EventOpts
 local function on_event(opts)
@@ -13,7 +29,7 @@ local function on_event(opts)
     group = opts.group,
     pattern = opts.pattern,
     callback = function(args)
-      opts.callback(args)
+      opts.loader(args)
 
       vim.api.nvim_exec_autocmds(opts.event, {
         buffer = args.buf,
@@ -25,7 +41,7 @@ end
 ---@param opts me.lazy.KeyOpts
 local function on_key(opts)
   vim.keymap.set(opts.mode, opts.lhs, function()
-    opts.callback()
+    opts.loader()
 
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(opts.lhs, true, false, true), "m", false)
   end, { desc = opts.desc })
@@ -34,7 +50,7 @@ end
 ---@param opts me.lazy.CmdOpts
 local function on_cmd(opts)
   vim.api.nvim_create_user_command(opts.name, function(args)
-    opts.callback()
+    opts.loader()
 
     vim.cmd(opts.name .. " " .. args.args)
   end, opts.opts or {})
@@ -46,7 +62,7 @@ end
 function M.on(name, opts, callback)
   local group = vim.api.nvim_create_augroup("LazyLoad" .. name, { clear = true })
 
-  local function handler()
+  local function loader()
     if opts.by_keys then
       for _, key in ipairs(opts.by_keys) do
         vim.keymap.del(key.mode, key.lhs)
@@ -77,26 +93,26 @@ function M.on(name, opts, callback)
   if opts.by_events then
     for _, event in ipairs(opts.by_events) do
       event.group = group
-      event.callback = handler
+      event.loader = loader
       on_event(event)
     end
   end
 
   if opts.by_keys then
     for _, key in ipairs(opts.by_keys) do
-      key.callback = handler
+      key.loader = loader
       on_key(key)
     end
   end
 
   if opts.by_cmds then
     for _, cmd in ipairs(opts.by_cmds) do
-      cmd.callback = handler
+      cmd.loader = loader
       on_cmd(cmd)
     end
   end
 
-  M.lazy_loaders[name] = handler
+  M.lazy_loaders[name] = loader
 end
 
 ---@param name string
