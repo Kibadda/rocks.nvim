@@ -116,6 +116,7 @@ require("me.lazy").on("mini-pick", {
   function MiniPick.registry.buffers()
     MiniPick.builtin.buffers({}, {
       mappings = {
+        choose_in_tabpage = "",
         wipeout = {
           char = "<C-d>",
           func = function()
@@ -176,6 +177,7 @@ require("me.lazy").on("mini-pick", {
         end,
       },
       mappings = {
+        choose_in_tabpage = "",
         toggle = {
           char = "<C-t>",
           func = function()
