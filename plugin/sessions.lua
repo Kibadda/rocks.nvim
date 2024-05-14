@@ -6,6 +6,10 @@ vim.g.loaded_sessions = 1
 
 vim.g.session_dir = vim.fn.stdpath "data" .. "/session"
 
+if vim.fn.isdirectory(vim.g.session_dir) == 0 then
+  vim.fn.mkdir(vim.g.session_dir, "p")
+end
+
 ---@param session string
 local function save(session)
   pcall(vim.cmd.argdelete, "*")
