@@ -64,9 +64,40 @@ local function delete()
   end
 end
 
+local group = vim.api.nvim_create_augroup("Session", { clear = true })
+
 vim.api.nvim_create_autocmd("VimLeavePre", {
-  group = vim.api.nvim_create_augroup("Session", { clear = true }),
-  callback = update,
+  group = group,
+  callback = function()
+    update()
+  end,
+})
+
+local function kitty(title)
+  vim.system {
+    "kitty",
+    "@",
+    "--to",
+    vim.env.KITTY_LISTEN_ON,
+    "set-tab-title",
+    title and "nvim " .. title or "",
+  }
+end
+
+vim.api.nvim_create_autocmd({ "VimLeavePre", "FocusLost" }, {
+  group = group,
+  callback = function()
+    kitty()
+  end,
+})
+
+vim.api.nvim_create_autocmd({ "FocusGained", "SessionLoadPost" }, {
+  group = group,
+  callback = function()
+    if vim.v.this_session and vim.v.this_session ~= "" then
+      kitty(vim.fs.basename(vim.v.this_session))
+    end
+  end,
 })
 
 vim.keymap.set("n", "<Leader>Sn", new, { desc = "New" })
