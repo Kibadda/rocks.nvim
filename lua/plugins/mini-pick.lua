@@ -3,6 +3,7 @@ require("me.lazy").on("mini-pick", {
     { mode = "n", lhs = "<Leader>f", rhs = "<Cmd>Pick files<CR>", desc = "Find Files" },
     { mode = "n", lhs = "<Leader>F", rhs = "<Cmd>Pick files vcs=false<CR>", desc = "Find All Files" },
     { mode = "n", lhs = "<Leader>b", rhs = "<Cmd>Pick buffers<CR>", desc = "Find Buffer" },
+    { mode = "n", lhs = "<Leader>H", rhs = "<Cmd>Pick hunks<CR>", desc = "Git Hunks" },
     { mode = "n", lhs = "<Leader>sg", rhs = "<Cmd>Pick grep_live<CR>", desc = "Live Grep" },
     { mode = "n", lhs = "<Leader>sh", rhs = "<Cmd>Pick help<CR>", desc = "Help" },
     { mode = "n", lhs = "<Leader>sr", rhs = "<Cmd>Pick resume<CR>", desc = "Resume" },
@@ -195,6 +196,156 @@ require("me.lazy").on("mini-pick", {
           char = "<C-t>",
           func = function()
             MiniPick.registry.files { vcs = not vcs, query = MiniPick.get_picker_query() }
+          end,
+        },
+      },
+    })
+  end
+
+  function MiniPick.registry.hunks(opts)
+    opts = opts or {}
+
+    local unstaged = opts.unstaged ~= false
+
+    local diff_cmd = { "git", "diff", "--patch", "--unified=1", "--color=never", "--", vim.fn.getcwd() }
+
+    if not unstaged then
+      table.insert(diff_cmd, 4, "--cached")
+    end
+
+    MiniPick.builtin.cli({
+      command = diff_cmd,
+      postprocess = function(lines)
+        local header_pattern = "^diff %-%-git"
+        local hunk_pattern = "^@@ %-%d+,?%d* %+(%d+),?%d* @@"
+        local to_path_pattern = "^%+%+%+ b/(.*)$"
+
+        -- Parse diff lines
+        local cur_header, cur_path, is_in_hunk = {}, nil, false
+        local items = {}
+        for _, l in ipairs(lines) do
+          -- Separate path header and hunk for better granularity
+          if l:find(header_pattern) ~= nil then
+            is_in_hunk = false
+            cur_header = {}
+          end
+
+          local path_match = l:match(to_path_pattern)
+          if path_match ~= nil and not is_in_hunk then
+            cur_path = path_match
+          end
+
+          local hunk_start = l:match(hunk_pattern)
+          if hunk_start ~= nil then
+            is_in_hunk = true
+            local item = { path = cur_path, lnum = tonumber(hunk_start), header = vim.deepcopy(cur_header), hunk = {} }
+            table.insert(items, item)
+          end
+
+          if is_in_hunk then
+            table.insert(items[#items].hunk, l)
+          else
+            table.insert(cur_header, l)
+          end
+        end
+
+        -- Correct line number to point at the first change
+        local try_correct_lnum = function(item, i)
+          if item.hunk[i]:find "^[+-]" == nil then
+            return false
+          end
+          item.lnum = item.lnum + i - 2
+          return true
+        end
+        for _, item in ipairs(items) do
+          for i = 2, #item.hunk do
+            if try_correct_lnum(item, i) then
+              break
+            end
+          end
+        end
+
+        -- Construct aligned text from path and hunk header
+        local text_parts, path_width, coords_width = {}, 0, 0
+        for i, item in ipairs(items) do
+          local coords, title = item.hunk[1]:match "@@ (.-) @@ ?(.*)$"
+          coords, title = coords or "", title or ""
+          text_parts[i] = { item.path, coords, title }
+          path_width = math.max(path_width, vim.fn.strchars(item.path))
+          coords_width = math.max(coords_width, vim.fn.strchars(coords))
+        end
+
+        local function ensure_text_width(text, width)
+          local text_width = vim.fn.strchars(text)
+          if text_width <= width then
+            return text .. string.rep(" ", width - text_width)
+          end
+          return "…" .. vim.fn.strcharpart(text, text_width - width + 1, width - 1)
+        end
+
+        for i, item in ipairs(items) do
+          local parts = text_parts[i]
+          local path, coords = ensure_text_width(parts[1], path_width), ensure_text_width(parts[2], coords_width)
+          item.text = string.format("%s │ %s │ %s", path, coords, parts[3])
+        end
+
+        return items
+      end,
+    }, {
+      initial_query = opts.query,
+      source = {
+        name = string.format("Hunks (%s)", unstaged and "unstaged" or "staged"),
+        preview = function(buf_id, item)
+          vim.bo[buf_id].syntax = "diff"
+          local lines = vim.deepcopy(item.header)
+          vim.list_extend(lines, item.hunk)
+          vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, lines)
+        end,
+      },
+      mappings = {
+        choose_in_tabpage = "",
+        refine = "",
+        toggle = {
+          char = "<C-t>",
+          func = function()
+            MiniPick.registry.hunks {
+              unstaged = not unstaged,
+              query = MiniPick.get_picker_query(),
+            }
+          end,
+        },
+        apply = {
+          char = "<C-space>",
+          func = function()
+            local current = MiniPick.get_picker_matches().current
+
+            local patch = current.header
+            vim.list_extend(patch, current.hunk)
+
+            local apply_cmd = {
+              "git",
+              "apply",
+              "--whitespace=nowarn",
+              "--cached",
+              "--unidiff-zero",
+              "-",
+            }
+
+            if not unstaged then
+              table.insert(apply_cmd, 4, "--reverse")
+            end
+
+            vim
+              .system(apply_cmd, {
+                cwd = vim.fn.getcwd(),
+                stdin = patch,
+              })
+              :wait()
+
+            MiniPick.registry.hunks {
+              unstaged = unstaged,
+              query = MiniPick.get_picker_query(),
+            }
           end,
         },
       },
