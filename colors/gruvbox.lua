@@ -7,7 +7,7 @@ end
 vim.g.colors_name = "gruvbox-transparent"
 
 local colors = {
-  black = "#504945",
+  black = "#363531",
   red = "#ea6962",
   green = "#a9b665",
   yellow = "#d8a657",
@@ -15,7 +15,7 @@ local colors = {
   magenta = "#d3869b",
   cyan = "#89b482",
   white = "#d4be98",
-  bright_black = "#504945",
+  bright_black = "#363531",
   bright_red = "#ea6962",
   bright_green = "#a9b665",
   bright_yellow = "#d8a657",
@@ -67,10 +67,10 @@ local theme = {
   CurSearch = {},
   MoreMsg = { fg = colors.bright_yellow, bold = true },
   ModeMsg = { fg = colors.bright_white, bold = true },
-  LineNr = { fg = colors.bright_black },
+  LineNr = { link = "Comment" },
   LineNrAbove = { link = "LineNr" },
   LineNrBelow = { link = "LineNr" },
-  CursorLineNr = { fg = colors.white },
+  CursorLineNr = { fg = colors.yellow, bold = true },
   CursorLineSign = { link = "SignColumn" },
   DiagnosticWarning = { link = "DiagnosticWarn" },
   LineDiagTuncateLine = { link = "Yellow" },
@@ -477,7 +477,7 @@ local theme = {
   ["@lsp.typemod.function.defaultLibrary"] = { link = "Special" },
   ["@tag"] = { fg = colors.red },
   ["@tag.attribute"] = { fg = colors.yellow },
-  ["@tag.delimiter"] = { fg = colors.black },
+  ["@tag.delimiter"] = { fg = "#928374" },
   TreesitterContextBottom = { underline = true, special = "#928374" },
   TreesitterContextLineNumberBottom = { link = "TreesitterContextBottom" },
 }
