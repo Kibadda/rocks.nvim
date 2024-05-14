@@ -34,6 +34,9 @@ local install = {
   "sql",
   "hyprlang",
   "rust",
+  "markdown",
+  "markdown_inline",
+  "regex",
 }
 
 require("nvim-treesitter").setup {
