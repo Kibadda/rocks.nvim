@@ -13,6 +13,7 @@ local parsers = {
   markdown = true,
   markdown_inline = true,
   regex = true,
+  gitcommit = true,
   smarty = {
     ---@diagnostic disable-next-line:missing-fields
     install_info = {
