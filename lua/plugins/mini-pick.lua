@@ -47,24 +47,22 @@ require("me.lazy").on("mini-pick", {
     },
   },
 }, function()
-  local pick = require "mini.pick"
-
-  ---@diagnostic disable-next-line:duplicate-set-field
-  function vim.ui.select(...)
-    pick.ui_select(...)
-  end
-
-  pick.setup {
+  require("mini.pick").setup {
     mappings = {
       move_down = "<C-j>",
       move_up = "<C-k>",
     },
   }
 
-  function pick.registry.lsp(opts)
+  ---@diagnostic disable-next-line:duplicate-set-field
+  function vim.ui.select(...)
+    MiniPick.ui_select(...)
+  end
+
+  function MiniPick.registry.lsp(opts)
     opts = opts or {}
 
-    pick.start {
+    MiniPick.start {
       source = {
         name = opts.title or "LSP",
         items = vim.tbl_map(function(item)
@@ -72,10 +70,10 @@ require("me.lazy").on("mini-pick", {
           return item
         end, opts.items),
         show = function(bufnr, items, query)
-          pick.default_show(bufnr, items, query, { show_icons = true })
+          MiniPick.default_show(bufnr, items, query, { show_icons = true })
         end,
         choose = function(item)
-          pick.default_choose(item)
+          MiniPick.default_choose(item)
         end,
       },
       mappings = {
@@ -91,7 +89,7 @@ require("me.lazy").on("mini-pick", {
     }
   end
 
-  function pick.registry.emoji()
+  function MiniPick.registry.emoji()
     local emojis = require "me.data.emoji"
 
     for _, r in ipairs(emojis) do
@@ -101,12 +99,12 @@ require("me.lazy").on("mini-pick", {
     local buf = vim.api.nvim_get_current_buf()
     local row, col = unpack(vim.api.nvim_win_get_cursor(0))
 
-    pick.start {
+    MiniPick.start {
       source = {
         name = "Emoji",
         items = emojis,
         show = function(bufnr, items, query)
-          pick.default_show(bufnr, items, query, { show_icons = true })
+          MiniPick.default_show(bufnr, items, query, { show_icons = true })
         end,
         choose = function(item)
           vim.api.nvim_buf_set_text(buf, row - 1, col, row - 1, col, { item[1] })
@@ -115,13 +113,13 @@ require("me.lazy").on("mini-pick", {
     }
   end
 
-  function pick.registry.buffers()
-    pick.builtin.buffers({}, {
+  function MiniPick.registry.buffers()
+    MiniPick.builtin.buffers({}, {
       mappings = {
         wipeout = {
           char = "<C-d>",
           func = function()
-            local bufnr = pick.get_picker_matches().current.bufnr
+            local bufnr = MiniPick.get_picker_matches().current.bufnr
             if vim.api.nvim_buf_is_valid(bufnr) then
               vim.api.nvim_buf_delete(bufnr, {})
             end
@@ -130,14 +128,14 @@ require("me.lazy").on("mini-pick", {
         files = {
           char = "<C-t>",
           func = function()
-            pick.registry.files()
+            MiniPick.registry.files()
           end,
         },
       },
     })
   end
 
-  function pick.registry.files(opts)
+  function MiniPick.registry.files(opts)
     opts = opts or {}
 
     local vcs = opts.vcs ~= false
@@ -154,12 +152,12 @@ require("me.lazy").on("mini-pick", {
         pattern = "MiniPickStart",
         once = true,
         callback = function()
-          pick.set_picker_query(query)
+          MiniPick.set_picker_query(query)
         end,
       })
     end
 
-    pick.builtin.cli({
+    MiniPick.builtin.cli({
       command = command,
       postprocess = function(items)
         items = vim.tbl_filter(function(item)
@@ -174,14 +172,14 @@ require("me.lazy").on("mini-pick", {
       source = {
         name = vcs and "Files" or "All Files",
         show = function(bufnr, items, que)
-          pick.default_show(bufnr, items, que, { show_icons = true })
+          MiniPick.default_show(bufnr, items, que, { show_icons = true })
         end,
       },
       mappings = {
         toggle = {
           char = "<C-t>",
           func = function()
-            pick.registry.files { vcs = not vcs, query = pick.get_picker_query() }
+            MiniPick.registry.files { vcs = not vcs, query = MiniPick.get_picker_query() }
           end,
         },
       },
