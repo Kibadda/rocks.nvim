@@ -123,6 +123,7 @@ require("me.lazy").on("mini-pick", {
             local bufnr = MiniPick.get_picker_matches().current.bufnr
             if vim.api.nvim_buf_is_valid(bufnr) then
               vim.api.nvim_buf_delete(bufnr, {})
+              MiniPick.registry.buffers()
             end
           end,
         },
