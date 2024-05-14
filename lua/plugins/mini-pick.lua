@@ -65,6 +65,42 @@ require("me.lazy").on("mini-pick", {
   function MiniPick.start(opts)
     opts = opts or {}
 
+    if opts.with_qflist_mapping then
+      opts.with_qflist_mapping = nil
+      opts.mappings = opts.mappings or {}
+      opts.mappings.qflist = {
+        char = "<C-q>",
+        func = function()
+          local items = {}
+          for _, item in ipairs(vim.print(MiniPick.get_picker_matches().all)) do
+            if type(item) == "table" then
+              if not item.filename then
+                item.filename = item.path
+              end
+              table.insert(items, item)
+            elseif type(item) == "string" then
+              local split = vim.split(item, ":")
+
+              table.insert(items, {
+                filename = split[1],
+                lnum = split[2],
+                col = split[3],
+                text = table.concat(split, ":", 4),
+              })
+            end
+          end
+
+          vim.fn.setqflist({}, " ", {
+            title = opts.source and opts.source.name or "MiniPick",
+            items = items,
+          })
+          MiniPick.stop()
+          vim.cmd.copen()
+          vim.cmd.cfirst()
+        end,
+      }
+    end
+
     if opts.initial_query then
       local query = opts.initial_query
 
@@ -86,6 +122,7 @@ require("me.lazy").on("mini-pick", {
     opts = opts or {}
 
     MiniPick.start {
+      with_qflist_mapping = true,
       source = {
         name = opts.title or "LSP",
         items = vim.tbl_map(function(item)
@@ -98,16 +135,6 @@ require("me.lazy").on("mini-pick", {
         choose = function(item)
           MiniPick.default_choose(item)
         end,
-      },
-      mappings = {
-        qflist = {
-          char = "<C-q>",
-          func = function()
-            vim.fn.setqflist({}, " ", { title = opts.title, items = pick.get_picker_matches().all })
-            pick.stop()
-            vim.cmd.copen()
-          end,
-        },
       },
     }
   end
@@ -157,6 +184,12 @@ require("me.lazy").on("mini-pick", {
           end,
         },
       },
+    })
+  end
+
+  function MiniPick.registry.grep_live()
+    MiniPick.builtin.grep_live({}, {
+      with_qflist_mapping = true,
     })
   end
 
@@ -293,6 +326,7 @@ require("me.lazy").on("mini-pick", {
       end,
     }, {
       initial_query = opts.query,
+      with_qflist_mapping = true,
       source = {
         name = string.format("Hunks (%s)", unstaged and "unstaged" or "staged"),
         preview = function(buf_id, item)
