@@ -59,6 +59,28 @@ require("me.lazy").on("mini-pick", {
     MiniPick.ui_select(...)
   end
 
+  local minipick_start = MiniPick.start
+  ---@diagnostic disable-next-line:duplicate-set-field
+  function MiniPick.start(opts)
+    opts = opts or {}
+
+    if opts.initial_query then
+      local query = opts.initial_query
+
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "MiniPickStart",
+        once = true,
+        callback = function()
+          MiniPick.set_picker_query(query)
+        end,
+      })
+
+      opts.initial_query = nil
+    end
+
+    minipick_start(opts)
+  end
+
   function MiniPick.registry.lsp(opts)
     opts = opts or {}
 
@@ -141,22 +163,11 @@ require("me.lazy").on("mini-pick", {
     opts = opts or {}
 
     local vcs = opts.vcs ~= false
-    local query = opts.query
 
     local command = { "rg", "--files", "--no-follow", "--color=never", "--hidden" }
 
     if not vcs then
       table.insert(command, "--no-ignore-vcs")
-    end
-
-    if query then
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "MiniPickStart",
-        once = true,
-        callback = function()
-          MiniPick.set_picker_query(query)
-        end,
-      })
     end
 
     MiniPick.builtin.cli({
@@ -171,6 +182,7 @@ require("me.lazy").on("mini-pick", {
         return items
       end,
     }, {
+      initial_query = opts.query,
       source = {
         name = vcs and "Files" or "All Files",
         show = function(bufnr, items, que)
