@@ -3,10 +3,11 @@ require("me.lazy").on("mini-pick", {
     { mode = "n", lhs = "<Leader>f", rhs = "<Cmd>Pick files<CR>", desc = "Find Files" },
     { mode = "n", lhs = "<Leader>F", rhs = "<Cmd>Pick files vcs=false<CR>", desc = "Find All Files" },
     { mode = "n", lhs = "<Leader>b", rhs = "<Cmd>Pick buffers<CR>", desc = "Find Buffer" },
-    { mode = "n", lhs = "<Leader>H", rhs = "<Cmd>Pick hunks<CR>", desc = "Git Hunks" },
+    { mode = "n", lhs = "<Leader>h", rhs = "<Cmd>Pick hunks<CR>", desc = "Git Hunks" },
     { mode = "n", lhs = "<Leader>sg", rhs = "<Cmd>Pick grep_live<CR>", desc = "Live Grep" },
     { mode = "n", lhs = "<Leader>sh", rhs = "<Cmd>Pick help<CR>", desc = "Help" },
     { mode = "n", lhs = "<Leader>sr", rhs = "<Cmd>Pick resume<CR>", desc = "Resume" },
+    { mode = "n", lhs = "<Leader>sb", rhs = "<Cmd>Pick buf_lines<CR>", desc = "Lines" },
     { mode = "i", lhs = "<M-e>", rhs = "<Cmd>Pick emoji<CR>", desc = "Emoji" },
   },
   by_cmds = {
@@ -384,5 +385,25 @@ require("me.lazy").on("mini-pick", {
         },
       },
     })
+  end
+
+  function MiniPick.registry.buf_lines()
+    local bufnr = vim.api.nvim_get_current_buf()
+    local items = {}
+
+    for lnum, line in ipairs(vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)) do
+      table.insert(items, {
+        text = string.format("%s:%s", lnum, line),
+        bufnr = bufnr,
+        lnum = lnum,
+      })
+    end
+
+    MiniPick.start {
+      source = {
+        name = "Lines",
+        items = items,
+      },
+    }
   end
 end)
