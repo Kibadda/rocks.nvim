@@ -111,10 +111,4 @@ vim.keymap.set("n", "gH", function()
   vim.ui.open(url)
 end, { desc = "Open Current Remote" })
 
-vim.api.nvim_create_user_command("Commit", function()
-  require("me.git").commit()
-end, {
-  bang = true,
-  nargs = 0,
-  desc = "Commit",
-})
+require "me.git"

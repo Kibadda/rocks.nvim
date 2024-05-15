@@ -46,7 +46,7 @@ function M.open(file, client)
   vim.api.nvim_open_win(bufnr, true, {
     split = "below",
     win = 0,
-    height = 15,
+    height = 20,
   })
 end
 

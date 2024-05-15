@@ -1,7 +1,5 @@
-local M = {}
-
-function M.commit()
-  vim.fn.jobstart({ "git", "commit" }, {
+local function jobstart(cmd)
+  vim.fn.jobstart(cmd, {
     cwd = vim.fn.getcwd(),
     env = {
       GIT_EDITOR = "nvim --headless --clean --noplugin -n -R -u "
@@ -12,4 +10,63 @@ function M.commit()
   })
 end
 
-return M
+local commands = {
+  commit = {
+    cmd = "commit",
+    opts = { "amend", "no-edit" },
+  },
+}
+
+local function git(args)
+  local subcmd = table.remove(args.fargs, 1)
+
+  if commands[subcmd] then
+    local opts = args.fargs or {}
+
+    local cmd = { "git", commands[subcmd].cmd }
+
+    for _, opt in ipairs(commands[subcmd].opts) do
+      if vim.tbl_contains(opts, opt) then
+        table.insert(cmd, "--" .. opt)
+      end
+    end
+
+    jobstart(cmd)
+  end
+end
+
+---@param cmdline string
+local function git_complete(_, cmdline, _)
+  local subcmd, subcmd_arg_lead = cmdline:match "^Git%s+(%S+)%s+(.*)$"
+  vim.print(subcmd, subcmd_arg_lead)
+  if subcmd and subcmd_arg_lead then
+    local opts = vim.split(subcmd_arg_lead, "%s+")
+
+    return vim.tbl_filter(function(opt)
+      if vim.tbl_contains(opts, opt) then
+        return false
+      end
+
+      return string.find(opt, opts[#opts]) ~= nil
+    end, commands[subcmd].opts)
+  end
+
+  subcmd = cmdline:match "^Git%s+(.*)$"
+
+  local cmds = vim.tbl_keys(commands)
+  table.sort(cmds)
+
+  if subcmd then
+    return vim.tbl_filter(function(cmd)
+      return string.find(cmd, subcmd) ~= nil
+    end, cmds)
+  end
+end
+
+vim.api.nvim_create_user_command("Git", git, {
+  bang = false,
+  bar = false,
+  complete = git_complete,
+  desc = "Git wrapper",
+  nargs = "+",
+})
