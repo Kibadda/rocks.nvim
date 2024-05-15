@@ -1,4 +1,6 @@
 local function jobstart(cmd)
+  local has_error = false
+
   vim.fn.jobstart(cmd, {
     cwd = vim.fn.getcwd(),
     env = {
@@ -8,7 +10,23 @@ local function jobstart(cmd)
     pty = true,
     width = 80,
     on_exit = function()
-      vim.notify("Done: " .. table.concat(cmd, " "), vim.log.levels.WARN)
+      if not has_error then
+        vim.notify("Done: " .. table.concat(cmd, " "), vim.log.levels.WARN)
+      end
+    end,
+    on_stdout = function(_, data)
+      local errors = {}
+
+      for _, line in ipairs(data) do
+        if vim.startswith(line, "error:") then
+          has_error = true
+          table.insert(errors, line)
+        end
+      end
+
+      if has_error then
+        vim.notify(table.concat(errors, "\n"), vim.log.levels.ERROR)
+      end
     end,
   })
 end
