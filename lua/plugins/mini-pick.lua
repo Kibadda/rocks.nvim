@@ -56,11 +56,6 @@ require("me.lazy").on("mini-pick", {
     },
   }
 
-  ---@diagnostic disable-next-line:duplicate-set-field
-  function vim.ui.select(...)
-    MiniPick.ui_select(...)
-  end
-
   local minipick_start = MiniPick.start
   ---@diagnostic disable-next-line:duplicate-set-field
   function MiniPick.start(opts)
@@ -407,3 +402,9 @@ require("me.lazy").on("mini-pick", {
     }
   end
 end)
+
+---@diagnostic disable-next-line:duplicate-set-field
+function vim.ui.select(...)
+  require("me.lazy").load "mini-pick"
+  MiniPick.ui_select(...)
+end
