@@ -118,13 +118,17 @@ local function git_complete(_, cmdline, _)
   if subcmd and subcmd_arg_lead then
     local opts = vim.split(subcmd_arg_lead, "%s+")
 
-    return vim.tbl_filter(function(opt)
+    local comp = vim.tbl_filter(function(opt)
       if vim.tbl_contains(opts, opt) then
         return false
       end
 
       return string.find(opt, opts[#opts]) ~= nil
     end, commands[subcmd].opts or {})
+
+    table.sort(comp)
+
+    return comp
   end
 
   subcmd = cmdline:match "^Git%s+(.*)$"
