@@ -33,7 +33,7 @@ end
 
 local commands = {
   commit = {
-    cmd = "commit",
+    cmd = { "commit" },
     opts = { "amend", "no-edit" },
   },
 }
@@ -44,7 +44,11 @@ local function git(args)
   if commands[subcmd] then
     local opts = args.fargs or {}
 
-    local cmd = { "git", commands[subcmd].cmd }
+    local cmd = { "git" }
+
+    for _, c in ipairs(commands[subcmd].cmd) do
+      table.insert(cmd, c)
+    end
 
     for _, opt in ipairs(commands[subcmd].opts) do
       if vim.tbl_contains(opts, opt) then
@@ -59,7 +63,7 @@ end
 ---@param cmdline string
 local function git_complete(_, cmdline, _)
   local subcmd, subcmd_arg_lead = cmdline:match "^Git%s+(%S+)%s+(.*)$"
-  vim.print(subcmd, subcmd_arg_lead)
+
   if subcmd and subcmd_arg_lead then
     local opts = vim.split(subcmd_arg_lead, "%s+")
 
@@ -75,6 +79,7 @@ local function git_complete(_, cmdline, _)
   subcmd = cmdline:match "^Git%s+(.*)$"
 
   local cmds = vim.tbl_keys(commands)
+
   table.sort(cmds)
 
   if subcmd then
