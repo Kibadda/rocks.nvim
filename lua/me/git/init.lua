@@ -31,10 +31,40 @@ local function jobstart(cmd)
   })
 end
 
+local function select_commit()
+  local history = vim.split(vim.system({ "git", "log", '--pretty=format:"%h|%s"' }):wait().stdout:gsub('"', ""), "\n")
+
+  local commits = {}
+  for _, commit in ipairs(history) do
+    table.insert(commits, vim.split(commit, "|"))
+  end
+
+  local commit
+
+  vim.ui.select(commits, {
+    prompt = "Commit",
+    format_item = function(item)
+      return item[2]
+    end,
+  }, function(item)
+    commit = item and item[1] or nil
+  end)
+
+  return commit
+end
+
 local commands = {
   commit = {
     cmd = { "commit" },
     opts = { "amend", "no-edit" },
+  },
+
+  rebase = {
+    cmd = { "rebase" },
+    opts = { "interactive", "autosquash" },
+    extra = function()
+      return select_commit() .. "^"
+    end,
   },
 }
 
@@ -53,6 +83,14 @@ local function git(args)
     for _, opt in ipairs(commands[subcmd].opts) do
       if vim.tbl_contains(opts, opt) then
         table.insert(cmd, "--" .. opt)
+      end
+    end
+
+    if commands[subcmd].extra then
+      local opt = commands[subcmd].extra()
+
+      if opt then
+        table.insert(cmd, opt)
       end
     end
 
