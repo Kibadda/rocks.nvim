@@ -63,6 +63,7 @@ vim.api.nvim_create_autocmd({ "TextChanged", "InsertLeave", "BufEnter", "FocusGa
           return
         end
 
+        ---@diagnostic disable-next-line:missing-fields
         vim.diff(obj2.code == 0 and obj2.stdout or "", changed, {
           ignore_whitespace_change = true,
           on_hunk = function(_, c1, _, c2)
@@ -76,6 +77,8 @@ vim.api.nvim_create_autocmd({ "TextChanged", "InsertLeave", "BufEnter", "FocusGa
               git.added = git.added + c2 - delta
               git.removed = git.removed + c1 - delta
             end
+
+            return 0
           end,
         })
 
