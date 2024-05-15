@@ -59,6 +59,11 @@ local commands = {
     opts = { "amend", "no-edit" },
   },
 
+  fixup = {
+    cmd = { "commit", "--fixup" },
+    extra = select_commit,
+  },
+
   rebase = {
     cmd = { "rebase" },
     opts = { "interactive", "autosquash" },
@@ -80,9 +85,11 @@ local function git(args)
       table.insert(cmd, c)
     end
 
-    for _, opt in ipairs(commands[subcmd].opts) do
-      if vim.tbl_contains(opts, opt) then
-        table.insert(cmd, "--" .. opt)
+    if commands[subcmd].opts then
+      for _, opt in ipairs(commands[subcmd].opts) do
+        if vim.tbl_contains(opts, opt) then
+          table.insert(cmd, "--" .. opt)
+        end
       end
     end
 
@@ -111,7 +118,7 @@ local function git_complete(_, cmdline, _)
       end
 
       return string.find(opt, opts[#opts]) ~= nil
-    end, commands[subcmd].opts)
+    end, commands[subcmd].opts or {})
   end
 
   subcmd = cmdline:match "^Git%s+(.*)$"
