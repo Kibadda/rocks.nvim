@@ -77,6 +77,15 @@ local commands = {
       return select_commit() .. "^"
     end,
   },
+
+  push = {
+    cmd = { "push" },
+    opts = { "force-with-lease" },
+  },
+
+  pull = {
+    cmd = { "pull" },
+  },
 }
 
 local function git(args)
