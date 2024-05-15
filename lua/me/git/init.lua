@@ -7,6 +7,9 @@ local function jobstart(cmd)
     },
     pty = true,
     width = 80,
+    on_exit = function()
+      vim.notify("Done: " .. table.concat(cmd, " "), vim.log.levels.WARN)
+    end,
   })
 end
 
