@@ -3,7 +3,7 @@ local M = {}
 ---@param params cmp.SourceCompletionApiParams
 ---@param callback function
 function M:complete(params, callback)
-  local ok, items = pcall(require, "user.snippets." .. params.context.filetype)
+  local ok, items = pcall(require, "me.snippets." .. params.context.filetype)
   if not ok then
     return {}
   end
