@@ -66,8 +66,14 @@ local commands = {
 
   rebase = {
     cmd = { "rebase" },
-    opts = { "interactive", "autosquash" },
-    extra = function()
+    opts = { "interactive", "autosquash", "abort", "skip", "continue" },
+    extra = function(opts)
+      for _, opt in ipairs(opts) do
+        if vim.tbl_contains({ "--abort", "--skip", "--continue" }, opt) then
+          return nil
+        end
+      end
+
       return select_commit() .. "^"
     end,
   },
@@ -94,7 +100,7 @@ local function git(args)
     end
 
     if commands[subcmd].extra then
-      local opt = commands[subcmd].extra()
+      local opt = commands[subcmd].extra(cmd)
 
       if opt then
         table.insert(cmd, opt)
