@@ -1,8 +1,6 @@
 require("mini.diff").setup {
   mappings = {
-    apply = "",
-    reset = "",
-    textobject = "",
+    textobject = "ih",
   },
   options = {
     wrap_goto = true,
