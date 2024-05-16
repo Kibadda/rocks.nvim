@@ -98,4 +98,50 @@ return {
     available_opts = { "prune" },
     show_output = true,
   },
+
+  log = create_command {
+    cmd = { "log", "--pretty=%h - %s (%cr)" },
+    post_run = function(_, stdout)
+      local lines = {}
+      local extmarks = {}
+
+      for i, line in ipairs(vim.split(stdout, "\n")) do
+        local full_line, _, hash, date = line:find "^([^%s]+) - .* (%([^%)]+%))$"
+
+        if not full_line then
+          break
+        end
+
+        table.insert(extmarks, { line = i, col = 1, end_col = #hash, hl = "RedSign" })
+        table.insert(extmarks, { line = i, col = #line - #date, end_col = #line, hl = "GreenSign" })
+        table.insert(lines, line)
+      end
+
+      local bufnr = vim.api.nvim_create_buf(false, false)
+      vim.api.nvim_buf_set_name(bufnr, "GIT LOG")
+      vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
+      vim.bo[bufnr].bufhidden = "wipe"
+      vim.bo[bufnr].modifiable = false
+      vim.bo[bufnr].modified = false
+
+      local ns = vim.api.nvim_create_namespace "git-log"
+
+      for _, extmark in ipairs(extmarks) do
+        vim.api.nvim_buf_set_extmark(bufnr, ns, extmark.line - 1, extmark.col - 1, {
+          end_col = extmark.end_col,
+          hl_group = extmark.hl,
+        })
+      end
+
+      vim.keymap.set("n", "q", function()
+        vim.api.nvim_buf_delete(bufnr, { force = true })
+      end)
+
+      vim.api.nvim_open_win(bufnr, true, {
+        split = "below",
+        win = 0,
+        height = 20,
+      })
+    end,
+  },
 }
