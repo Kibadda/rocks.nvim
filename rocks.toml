@@ -29,6 +29,7 @@ rustaceanvim = "4.23.1"
 "mini.diff" = "scm"
 nvim-autopairs = "scm"
 "plenary.nvim" = "scm"
+treesj = "scm"
 
 nvim-cmp = { git = "hrsh7th/nvim-cmp" }
 cmp-nvim-lsp = { git = "hrsh7th/cmp-nvim-lsp" }
