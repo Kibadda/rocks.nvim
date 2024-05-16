@@ -214,4 +214,9 @@ M.merge = create_command {
   end,
 }
 
+M.stash = create_command {
+  cmd = { "stash" },
+  available_opts = { "staged", "include-untracked" },
+}
+
 return M
