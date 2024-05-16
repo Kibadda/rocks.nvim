@@ -41,16 +41,16 @@ require("me.lazy").on("cmp", {
         vim.snippet.expand(args.body)
       end,
     },
-    sources = cmp.config.sources({
+    sources = cmp.config.sources {
+      { name = "snippets" },
       { name = "nvim_lsp" },
       { name = "path" },
-    }, {
       { name = "buffer" },
-    }),
+    },
     completion = {
       completeopt = "menu,menuone,noinsert,noselect,preview",
     },
-    mapping = cmp.mapping.preset.insert {
+    mapping = {
       ["<CR>"] = cmp.mapping.confirm { select = false },
       ["<Tab>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
@@ -64,20 +64,6 @@ require("me.lazy").on("cmp", {
       ["<S-Tab>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_prev_item()
-        else
-          fallback()
-        end
-      end, { "i", "s" }),
-      ["<C-l>"] = cmp.mapping(function(fallback)
-        if vim.snippet.active { direction = 1 } then
-          vim.snippet.jump(1)
-        else
-          fallback()
-        end
-      end, { "i", "s" }),
-      ["<C-h>"] = cmp.mapping(function(fallback)
-        if vim.snippet.active { direction = -1 } then
-          vim.snippet.jump(-1)
         else
           fallback()
         end
