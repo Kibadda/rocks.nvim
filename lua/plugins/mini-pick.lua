@@ -248,27 +248,40 @@ require("me.lazy").on("mini-pick", {
       postprocess = function(lines)
         local header_pattern = "^diff %-%-git"
         local hunk_pattern = "^@@ %-%d+,?%d* %+(%d+),?%d* @@"
-        local to_path_pattern = "^%+%+%+ b/(.*)$"
+        local to_path_pattern_b = "^%+%+%+ b/(.*)$"
+        local to_path_pattern_a = "^%-%-%- a/(.*)$"
 
         -- Parse diff lines
-        local cur_header, cur_path, is_in_hunk = {}, nil, false
+        local cur_header, path_a, path_b, is_in_hunk = {}, nil, nil, false
         local items = {}
         for _, l in ipairs(lines) do
           -- Separate path header and hunk for better granularity
           if l:find(header_pattern) ~= nil then
             is_in_hunk = false
             cur_header = {}
+            path_a = nil
+            path_b = nil
           end
 
-          local path_match = l:match(to_path_pattern)
-          if path_match ~= nil and not is_in_hunk then
-            cur_path = path_match
+          local path_match_a = l:match(to_path_pattern_a)
+          if path_match_a ~= nil and not is_in_hunk then
+            path_a = path_match_a
+          end
+
+          local path_match_b = l:match(to_path_pattern_b)
+          if path_match_b ~= nil and not is_in_hunk then
+            path_b = path_match_b
           end
 
           local hunk_start = l:match(hunk_pattern)
           if hunk_start ~= nil then
             is_in_hunk = true
-            local item = { path = cur_path, lnum = tonumber(hunk_start), header = vim.deepcopy(cur_header), hunk = {} }
+            local item = {
+              path = path_b or path_a,
+              lnum = tonumber(hunk_start),
+              header = vim.deepcopy(cur_header),
+              hunk = {},
+            }
             table.insert(items, item)
           end
 
