@@ -88,7 +88,7 @@ vim.api.nvim_create_autocmd({ "TextChanged", "InsertLeave", "BufEnter", "FocusGa
   end),
 })
 
-vim.keymap.set("n", "gH", function()
+vim.keymap.set("n", "gG", function()
   local remote = vim.trim(vim.system({ "git", "remote" }):wait().stdout)
 
   if #remote == 0 then
