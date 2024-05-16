@@ -34,111 +34,39 @@ local function jobstart(cmd, show_output)
   })
 end
 
-local function select_commit()
-  local history = vim.split(vim.system({ "git", "log", '--pretty=format:"%h|%s"' }):wait().stdout:gsub('"', ""), "\n")
-
-  local commits = {}
-  for _, commit in ipairs(history) do
-    table.insert(commits, vim.split(commit, "|"))
-  end
-
-  local commit
-
-  vim.ui.select(commits, {
-    prompt = "Commit",
-    format_item = function(item)
-      return item[2]
-    end,
-  }, function(item)
-    commit = item and item[1] or nil
-  end)
-
-  return commit
-end
-
----@class me.git.Cmd
----@field cmd string[]
----@field opts? string[]
----@field extra? fun(cmd: string[]): string?
----@field show_output? boolean
-
----@type table<string, me.git.Cmd>
-local commands = {
-  commit = {
-    cmd = { "commit" },
-    opts = { "amend", "no-edit" },
-  },
-
-  fixup = {
-    cmd = { "commit", "--fixup" },
-    extra = select_commit,
-  },
-
-  rebase = {
-    cmd = { "rebase" },
-    opts = { "interactive", "autosquash", "abort", "skip", "continue" },
-    extra = function(opts)
-      for _, opt in ipairs(opts) do
-        if vim.tbl_contains({ "--abort", "--skip", "--continue" }, opt) then
-          return nil
-        end
-      end
-
-      return select_commit() .. "^"
-    end,
-  },
-
-  push = {
-    cmd = { "push" },
-    opts = { "force-with-lease" },
-  },
-
-  pull = {
-    cmd = { "pull" },
-    show_output = true,
-  },
-
-  status = {
-    cmd = { "status" },
-    show_output = true,
-  },
-
-  fetch = {
-    cmd = { "fetch" },
-    opts = { "prune" },
-    show_output = true,
-  },
-}
+local commands = require "me.git.commands"
 
 local function git(args)
   local subcmd = table.remove(args.fargs, 1)
 
-  if commands[subcmd] then
+  local command = commands[subcmd]
+
+  if command then
     local opts = args.fargs or {}
 
     local cmd = { "git", "--no-pager" }
 
-    for _, c in ipairs(commands[subcmd].cmd) do
+    for _, c in ipairs(command.cmd) do
       table.insert(cmd, c)
     end
 
-    if commands[subcmd].opts then
-      for _, opt in ipairs(commands[subcmd].opts) do
+    if command.opts then
+      for _, opt in ipairs(command.opts) do
         if vim.tbl_contains(opts, opt) then
           table.insert(cmd, "--" .. opt)
         end
       end
     end
 
-    if commands[subcmd].extra then
-      local opt = commands[subcmd].extra(cmd)
+    if command.extra then
+      local opt = command.extra(cmd)
 
       if opt then
         table.insert(cmd, opt)
       end
     end
 
-    jobstart(cmd, commands[subcmd].show_output)
+    jobstart(cmd, command.show_output)
   end
 end
 
