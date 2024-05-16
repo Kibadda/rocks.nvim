@@ -20,12 +20,12 @@
 "heirline.nvim" = "1.0.3"
 "nui.nvim" = "0.3.0"
 nvim-web-devicons = "0.100"
-"todo-comments.nvim" = "1.2.0"
 nvim-surround = "2.1.5"
 rustaceanvim = "4.23.1"
 
 "mini.starter" = "scm"
 "mini.pick" = "scm"
+"mini.hipatterns" = "scm"
 "mini.diff" = "scm"
 nvim-autopairs = "scm"
 "plenary.nvim" = "scm"
@@ -41,7 +41,6 @@ vim-pasta = { git = "ku1ik/vim-pasta" }
 vim-repeat = { git = "tpope/vim-repeat" }
 vim-dotenv = { git = "tpope/vim-dotenv" }
 nvim-treesitter = { git = "nvim-treesitter/nvim-treesitter", branch = "main" }
-"nvim-colorizer.lua" = { git = "norcalli/nvim-colorizer.lua" }
 vim-kitty = { git = "fladson/vim-kitty" }
 
 [config]
