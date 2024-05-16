@@ -88,10 +88,17 @@ local commands = {
 
   pull = {
     cmd = { "pull" },
+    show_output = true,
   },
 
   status = {
     cmd = { "status" },
+    show_output = true,
+  },
+
+  fetch = {
+    cmd = { "fetch" },
+    opts = { "prune" },
     show_output = true,
   },
 }
