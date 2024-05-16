@@ -86,6 +86,10 @@ local commands = {
   pull = {
     cmd = { "pull" },
   },
+
+  status = {
+    cmd = { "status" },
+  },
 }
 
 local function git(args)
