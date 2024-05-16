@@ -56,6 +56,13 @@ local function select_commit()
   return commit
 end
 
+---@class me.git.Cmd
+---@field cmd string[]
+---@field opts? string[]
+---@field extra? fun(cmd: string[]): string?
+---@field show_output? boolean
+
+---@type table<string, me.git.Cmd>
 local commands = {
   commit = {
     cmd = { "commit" },
@@ -109,7 +116,7 @@ local function git(args)
   if commands[subcmd] then
     local opts = args.fargs or {}
 
-    local cmd = { "git" }
+    local cmd = { "git", "--no-pager" }
 
     for _, c in ipairs(commands[subcmd].cmd) do
       table.insert(cmd, c)
