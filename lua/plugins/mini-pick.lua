@@ -5,6 +5,7 @@ require("me.lazy").on("mini-pick", {
     { mode = "n", lhs = "<Leader>b", rhs = "<Cmd>Pick buffers<CR>", desc = "Find Buffer" },
     { mode = "n", lhs = "<Leader>h", rhs = "<Cmd>Pick hunks<CR>", desc = "Git Hunks (unstaged)" },
     { mode = "n", lhs = "<Leader>H", rhs = "<Cmd>Pick hunks unstaged=false<CR>", desc = "Git Hunks (staged)" },
+    { mode = "n", lhs = "<Leader>t", rhs = "<Cmd>Pick stashes<CR>", desc = "Git Stashes" },
     { mode = "n", lhs = "<Leader>sg", rhs = "<Cmd>Pick grep_live<CR>", desc = "Live Grep" },
     { mode = "n", lhs = "<Leader>sh", rhs = "<Cmd>Pick help<CR>", desc = "Help" },
     { mode = "n", lhs = "<Leader>sr", rhs = "<Cmd>Pick resume<CR>", desc = "Resume" },
@@ -390,6 +391,54 @@ require("me.lazy").on("mini-pick", {
               unstaged = unstaged,
               query = MiniPick.get_picker_query(),
             }
+          end,
+        },
+      },
+    })
+  end
+
+  function MiniPick.registry.stashes()
+    MiniPick.builtin.cli({
+      command = { "git", "stash", "list" },
+      postprocess = function(lines)
+        local items = {}
+        for _, stash in ipairs(lines) do
+          local id = stash:match "^(stash@{%d+})"
+
+          if id then
+            table.insert(items, {
+              text = stash,
+              id = id,
+              lines = vim.split(vim.system({ "git", "stash", "show", "-p", id }):wait().stdout, "\n"),
+            })
+          end
+        end
+
+        return items
+      end,
+    }, {
+      source = {
+        name = "Stashes",
+        preview = function(bufnr, item)
+          vim.bo[bufnr].filetype = "diff"
+          vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, item.lines)
+        end,
+        choose = function(item)
+          local result = vim.system({ "git", "stash", "pop", item.id }):wait()
+
+          if result.code > 0 then
+            vim.notify(result.stderr, vim.log.levels.ERROR)
+          else
+            vim.notify("Stash " .. item.id .. " applied", vim.log.levels.WARN)
+          end
+        end,
+      },
+      mappings = {
+        drop = {
+          char = "<C-Enter>",
+          func = function()
+            local item = MiniPick.get_picker_matches().current
+            vim.system({ "git", "stash", "drop", item.id }):wait()
           end,
         },
       },
