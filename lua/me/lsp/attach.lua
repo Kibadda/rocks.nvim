@@ -149,7 +149,9 @@ autocmd("LspAttach", {
       {
         method = methods.textDocument_formatting,
         extra = function()
-          vim.b[bufnr].formatter = vim.lsp.buf.format
+          if not vim.b[bufnr].formatter then
+            vim.b[bufnr].formatter = vim.lsp.buf.format
+          end
         end,
       },
       {
