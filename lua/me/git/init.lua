@@ -1,5 +1,5 @@
-local function jobstart(cmd)
-  local has_error = false
+local function jobstart(cmd, show_output)
+  local stdout = ""
 
   vim.fn.jobstart(cmd, {
     cwd = vim.fn.getcwd(),
@@ -9,23 +9,26 @@ local function jobstart(cmd)
     },
     pty = true,
     width = 80,
-    on_exit = function()
-      if not has_error then
-        vim.notify("Done: " .. table.concat(cmd, " "), vim.log.levels.WARN)
+    on_exit = function(_, code)
+      stdout = stdout:gsub("[\27\155][][()#;?%d]*[A-PRZcf-ntqry=><~]", ""):gsub("[\04\08]", ""):gsub("\r", "\n")
+
+      if code ~= 0 then
+        vim.notify(stdout, vim.log.levels.ERROR)
+      else
+        local output = {
+          { "Done: " .. table.concat(cmd, " "), "WarningMsg" },
+        }
+
+        if show_output and stdout ~= "" then
+          table.insert(output, { "\n" .. stdout })
+        end
+
+        vim.api.nvim_echo(output, true, {})
       end
     end,
     on_stdout = function(_, data)
-      local errors = {}
-
-      for _, line in ipairs(data) do
-        if vim.startswith(line, "error:") then
-          has_error = true
-          table.insert(errors, line)
-        end
-      end
-
-      if has_error then
-        vim.notify(table.concat(errors, "\n"), vim.log.levels.ERROR)
+      for _, chunk in ipairs(data) do
+        stdout = stdout .. chunk
       end
     end,
   })
@@ -89,6 +92,7 @@ local commands = {
 
   status = {
     cmd = { "status" },
+    show_output = true,
   },
 }
 
@@ -120,7 +124,7 @@ local function git(args)
       end
     end
 
-    jobstart(cmd)
+    jobstart(cmd, commands[subcmd].show_output)
   end
 end
 
