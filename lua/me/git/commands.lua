@@ -29,6 +29,31 @@ local function select_commit()
   return commit
 end
 
+local function select_branch(remote)
+  local cmd = { "branch", "--column=plain" }
+
+  if remote then
+    table.insert(cmd, "-r")
+  end
+
+  local branches = {}
+  for _, branch in ipairs(git_command(cmd)) do
+    if not branch:find "HEAD" then
+      table.insert(branches, vim.trim(branch:gsub("*", "")))
+    end
+  end
+
+  local branch
+
+  vim.ui.select(branches, {
+    prompt = "Branch",
+  }, function(item)
+    branch = item
+  end)
+
+  return branch
+end
+
 return {
   commit = create_command {
     cmd = { "commit" },
@@ -149,6 +174,42 @@ return {
         win = 0,
         height = 20,
       })
+    end,
+  },
+
+  switch = create_command {
+    cmd = { "switch" },
+    available_opts = { "create" },
+    pre_run = function(_, cmd)
+      local branch
+      if vim.tbl_contains(cmd, "--create") then
+        vim.ui.input({
+          prompt = "Enter branch name: ",
+        }, function(input)
+          branch = input
+        end)
+      else
+        branch = select_branch(false)
+      end
+
+      if not branch then
+        return false
+      end
+
+      table.insert(cmd, branch)
+    end,
+  },
+
+  merge = create_command {
+    cmd = { "merge" },
+    pre_run = function(_, cmd)
+      local branch = select_branch(true)
+
+      if not branch then
+        return false
+      end
+
+      table.insert(cmd, branch)
     end,
   },
 }
