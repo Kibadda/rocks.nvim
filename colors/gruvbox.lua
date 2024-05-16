@@ -385,6 +385,7 @@ local theme = {
   WinBar = { link = "Grey" },
   WinBarNC = { link = "Grey" },
   WinBarFilename = { fg = "#A5B4FC" },
+  WinBarModified = { fg = colors.red },
   Grey = { fg = "#928374" },
   Cursor = { reverse = true },
   lCursor = { fg = "#1d2021" },

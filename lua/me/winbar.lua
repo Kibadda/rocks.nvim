@@ -20,8 +20,10 @@ return function()
 
   path = path .. "/%#WinBarFilename#" .. filename .. "%*"
 
+  local modified = vim.bo.modified and " %#WinBarModified#●︎%*" or ""
+
   if not ok then
-    return path .. ":%L"
+    return path .. ":%L" .. modified
   end
 
   local icon, hl = devicons.get_icon(vim.fn.fnamemodify(vim.fn.expand "%", ":t"), nil, { default = false })
@@ -32,5 +34,5 @@ return function()
     icon = "%#" .. hl .. "#" .. icon .. "%*"
   end
 
-  return " " .. icon .. path .. ":%L"
+  return " " .. icon .. path .. ":%L" .. modified
 end
