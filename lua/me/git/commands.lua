@@ -1,8 +1,4 @@
----@class me.git.Cmd
----@field cmd string[]
----@field opts? string[]
----@field extra? fun(cmd: string[]): string?
----@field show_output? boolean
+local create_command = require "me.git.class"
 
 local function select_commit()
   local history = vim.split(vim.system({ "git", "log", '--pretty=format:"%h|%s"' }):wait().stdout:gsub('"', ""), "\n")
@@ -26,50 +22,80 @@ local function select_commit()
   return commit
 end
 
----@type table<string, me.git.Cmd>
 return {
-  commit = {
+  commit = create_command {
     cmd = { "commit" },
-    opts = { "amend", "no-edit" },
+    available_opts = { "amend", "no-edit" },
   },
 
-  fixup = {
+  fixup = create_command {
     cmd = { "commit", "--fixup" },
-    extra = select_commit,
-  },
+    pre_run = function(_, cmd)
+      local commit = select_commit()
 
-  rebase = {
-    cmd = { "rebase" },
-    opts = { "interactive", "autosquash", "abort", "skip", "continue" },
-    extra = function(opts)
-      for _, opt in ipairs(opts) do
-        if vim.tbl_contains({ "--abort", "--skip", "--continue" }, opt) then
-          return nil
-        end
+      if not commit then
+        return false
       end
 
-      return select_commit() .. "^"
+      table.insert(cmd, commit)
     end,
   },
 
-  push = {
-    cmd = { "push" },
-    opts = { "force-with-lease" },
+  rebase = create_command {
+    cmd = { "rebase" },
+    available_opts = { "interactive", "autosquash", "abort", "skip", "continue" },
+    pre_run = function(_, cmd)
+      local commit = select_commit()
+
+      if not commit then
+        return false
+      end
+
+      table.insert(cmd, commit .. "^")
+    end,
+    complete = function(self, arg_lead)
+      local split = vim.split(arg_lead, "%s+")
+
+      local available_opts = self.available_opts or {}
+
+      if vim.tbl_contains(split, "abort") or vim.tbl_contains(split, "skip") or vim.tbl_contains(split, "continue") then
+        available_opts = {}
+      elseif vim.tbl_contains(split, "interactive") or vim.tbl_contains(split, "autosquash") then
+        available_opts = { "interactive", "autosquash" }
+      end
+
+      local complete = vim.tbl_filter(function(opt)
+        if vim.tbl_contains(split, opt) then
+          return false
+        end
+
+        return string.match(opt, "^" .. split[#split]) ~= nil
+      end, available_opts)
+
+      table.sort(complete)
+
+      return complete
+    end,
   },
 
-  pull = {
+  push = create_command {
+    cmd = { "push" },
+    available_opts = { "force-with-lease" },
+  },
+
+  pull = create_command {
     cmd = { "pull" },
     show_output = true,
   },
 
-  status = {
+  status = create_command {
     cmd = { "status" },
     show_output = true,
   },
 
-  fetch = {
+  fetch = create_command {
     cmd = { "fetch" },
-    opts = { "prune" },
+    available_opts = { "prune" },
     show_output = true,
   },
 }
