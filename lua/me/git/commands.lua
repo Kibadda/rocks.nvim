@@ -1,10 +1,17 @@
 local create_command = require "me.git.class"
 
-local function select_commit()
-  local history = vim.split(vim.system({ "git", "log", '--pretty=format:"%h|%s"' }):wait().stdout:gsub('"', ""), "\n")
+local function git_command(cmd)
+  table.insert(cmd, 1, "git")
+  table.insert(cmd, 2, "--no-pager")
 
+  local result = vim.system(cmd):wait()
+
+  return vim.split(result.stdout, "\n")
+end
+
+local function select_commit()
   local commits = {}
-  for _, commit in ipairs(history) do
+  for _, commit in ipairs(git_command { "log", "--pretty=%h|%s" }) do
     table.insert(commits, vim.split(commit, "|"))
   end
 
