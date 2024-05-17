@@ -266,7 +266,9 @@ require("me.lazy").on("mini-pick", {
           end
         end
 
-        vim.system(reset_cmd):wait()
+        if #reset_cmd > 3 then
+          vim.system(reset_cmd):wait()
+        end
       end,
     })
 
