@@ -114,6 +114,7 @@ M.rebase = create_command {
 M.push = create_command {
   cmd = { "push" },
   available_opts = { "force-with-lease" },
+  show_output = true,
 }
 
 M.pull = create_command {

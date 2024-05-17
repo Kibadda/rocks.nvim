@@ -79,7 +79,28 @@ function Command:post_run(stdout)
   }
 
   if self.show_output and stdout ~= "" then
-    table.insert(output, { "\n" .. stdout })
+    local skips = {
+      "Compressing objects",
+      "Counting objects",
+      "Resolving deltas",
+      "Unpacking objects",
+      "Writing objects",
+    }
+
+    for _, line in ipairs(vim.split(stdout, "\n")) do
+      local skip = false
+
+      for _, find in ipairs(skips) do
+        if line:find(find) then
+          skip = true
+          break
+        end
+      end
+
+      if not skip then
+        table.insert(output, { "\n" .. line })
+      end
+    end
   end
 
   vim.api.nvim_echo(output, true, {})
