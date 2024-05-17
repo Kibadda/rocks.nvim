@@ -153,7 +153,6 @@ M.log = create_command {
     local bufnr = vim.api.nvim_create_buf(false, false)
     vim.api.nvim_buf_set_name(bufnr, "GIT LOG")
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
-    vim.bo[bufnr].bufhidden = "wipe"
     vim.bo[bufnr].modifiable = false
     vim.bo[bufnr].modified = false
 
@@ -168,13 +167,34 @@ M.log = create_command {
 
     vim.keymap.set("n", "q", function()
       vim.api.nvim_buf_delete(bufnr, { force = true })
-    end)
+    end, { buffer = bufnr })
 
-    vim.api.nvim_open_win(bufnr, true, {
+    local win = vim.api.nvim_open_win(bufnr, true, {
       split = "below",
       win = 0,
       height = 20,
     })
+
+    vim.keymap.set("n", "<CR>", function()
+      local row = vim.api.nvim_win_get_cursor(0)[1]
+      local line = vim.api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
+      local hash = line:match "^([^%s]+)"
+
+      local difflines = git_command { "diff", string.format("%s^..%s", hash, hash) }
+
+      local diffbufnr = vim.api.nvim_create_buf(false, false)
+      vim.api.nvim_buf_set_lines(diffbufnr, 0, -1, false, difflines)
+      vim.bo[diffbufnr].bufhidden = "wipe"
+      vim.bo[diffbufnr].modifiable = false
+      vim.bo[diffbufnr].modified = false
+      vim.bo[diffbufnr].filetype = "diff"
+
+      vim.keymap.set("n", "q", function()
+        vim.api.nvim_win_set_buf(win, bufnr)
+      end, { buffer = diffbufnr })
+
+      vim.api.nvim_win_set_buf(win, diffbufnr)
+    end, { buffer = bufnr })
   end,
 }
 
