@@ -26,7 +26,7 @@ local function git_complete(_, cmdline, _)
 
   if subcmd then
     return vim.tbl_filter(function(cmd)
-      return string.find(cmd, subcmd) ~= nil
+      return string.find(cmd, "^" .. subcmd) ~= nil
     end, cmds)
   end
 end

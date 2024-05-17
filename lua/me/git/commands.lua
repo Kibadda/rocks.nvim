@@ -102,7 +102,7 @@ M.rebase = create_command {
         return false
       end
 
-      return string.match(opt, "^" .. split[#split]) ~= nil
+      return string.find(opt, "^" .. split[#split]) ~= nil
     end, available_opts)
 
     table.sort(complete)
