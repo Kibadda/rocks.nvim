@@ -479,6 +479,8 @@ require("me.lazy").on("mini-pick", {
           func = function()
             local item = MiniPick.get_picker_matches().current
             vim.system({ "git", "stash", "drop", item.id }):wait()
+
+            MiniPick.registry.stashes()
           end,
         },
       },
