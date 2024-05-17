@@ -1,20 +1,25 @@
----@type table<string, boolean|ParserInfo>
+---@class me.treesitter.ParserInfo : ParserInfo
+---@field name string
+
+---@type (string|me.treesitter.ParserInfo)[]
 local parsers = {
-  php = true,
-  php_only = true,
-  rust = true,
-  typescript = true,
-  javascript = true,
-  html = true,
-  toml = true,
-  lua = true,
-  sql = true,
-  hyprlang = true,
-  markdown = true,
-  markdown_inline = true,
-  regex = true,
-  gitcommit = true,
-  smarty = {
+  "gitcommit",
+  "html",
+  "hyprlang",
+  "javascript",
+  "lua",
+  "markdown",
+  "markdown_inline",
+  "php",
+  "php_only",
+  "regex",
+  "rust",
+  "sql",
+  "toml",
+  "typescript",
+
+  {
+    name = "smarty",
     ---@diagnostic disable-next-line:missing-fields
     install_info = {
       path = vim.fn.expand "$HOME/Projects/Personal/tree-sitter-smarty",
@@ -27,11 +32,11 @@ local parsers = {
 local function add_parsers()
   local treesitter_parsers = require "nvim-treesitter.parsers"
 
-  for key, config in pairs(parsers) do
+  for _, config in ipairs(parsers) do
     if type(config) == "table" then
-      treesitter_parsers[key] = config
+      treesitter_parsers[config.name] = config
 
-      if not vim.tbl_contains(vim.opt.runtimepath:get(), config.install_info.path) then
+      if config.install_info.path and not vim.tbl_contains(vim.opt.runtimepath:get(), config.install_info.path) then
         vim.opt.runtimepath:append(config.install_info.path)
       end
     end
@@ -49,18 +54,16 @@ vim.api.nvim_create_autocmd("User", {
 add_parsers()
 
 require("nvim-treesitter").setup {
-  ensure_install = vim.iter(parsers):fold({}, function(acc, parser, config)
-    if type(config) == "boolean" then
-      table.insert(acc, parser)
-    end
-
-    return acc
-  end),
+  ensure_install = vim.iter(parsers):filter(function(parser)
+    return type(parser) == "string"
+  end):totable(),
 }
 
 vim.api.nvim_create_autocmd("FileType", {
   group = group,
-  pattern = vim.tbl_keys(parsers),
+  pattern = vim.tbl_map(function(parser)
+    return type(parser) == "string" and parser or parser.name
+  end, parsers),
   callback = function(args)
     vim.treesitter.start()
     vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
