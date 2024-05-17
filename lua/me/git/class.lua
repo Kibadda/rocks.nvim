@@ -87,6 +87,7 @@ function Command:post_run(stdout)
       "Writing objects",
     }
 
+    local highlight = "Green"
     for _, line in ipairs(vim.split(stdout, "\n")) do
       local skip = false
 
@@ -98,7 +99,22 @@ function Command:post_run(stdout)
       end
 
       if not skip then
-        table.insert(output, { "\n" .. line })
+        if line:find "Changes not staged for commit" or line:find "Untracked files" then
+          highlight = "Red"
+        end
+
+        if vim.startswith(line, "\t") then
+          table.insert(output, { "\n" .. line, highlight })
+        else
+          local cstart, cend, branch = line:find "('%w+/%w+')"
+          if cstart then
+            table.insert(output, { "\n" .. line:sub(1, cstart - 1) })
+            table.insert(output, { branch, "Blue" })
+            table.insert(output, { line:sub(cend + 1) })
+          else
+            table.insert(output, { "\n" .. line })
+          end
+        end
       end
     end
   end
