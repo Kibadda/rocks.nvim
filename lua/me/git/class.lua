@@ -85,6 +85,7 @@ function Command:post_run(stdout)
       "Resolving deltas",
       "Unpacking objects",
       "Writing objects",
+      "Receiving objects",
     }
 
     local highlight = "Green"
