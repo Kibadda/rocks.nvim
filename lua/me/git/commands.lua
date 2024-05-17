@@ -134,20 +134,29 @@ M.fetch = create_command {
 }
 
 M.log = create_command {
-  cmd = { "log", "--pretty=%h - %s (%cr)" },
+  cmd = { "log", "--pretty=%h -%C()%d%Creset %s (%cr)" },
   post_run = function(_, stdout)
     local lines = {}
     local extmarks = {}
 
     for i, line in ipairs(vim.split(stdout, "\n")) do
-      local full_line, _, hash, date = line:find "^([^%s]+) - .* (%([^%)]+%))$"
+      local full_line, hash, branch, date
+
+      full_line, _, hash, branch, date = line:find "^([^%s]+) %- (%([^%)]+%)).*(%([^%)]+%))$"
+
+      if not full_line then
+        full_line, _, hash, date = line:find "^([^%s]+) %-.*(%([^%)]+%))$"
+      end
 
       if not full_line then
         break
       end
 
-      table.insert(extmarks, { line = i, col = 1, end_col = #hash, hl = "RedSign" })
-      table.insert(extmarks, { line = i, col = #line - #date, end_col = #line, hl = "GreenSign" })
+      table.insert(extmarks, { line = i, col = 1, end_col = #hash, hl = "Red" })
+      if branch then
+        table.insert(extmarks, { line = i, col = #hash + 3, end_col = #hash + 3 + #branch, hl = "Yellow" })
+      end
+      table.insert(extmarks, { line = i, col = #line - #date, end_col = #line, hl = "Green" })
       table.insert(lines, line)
     end
 
