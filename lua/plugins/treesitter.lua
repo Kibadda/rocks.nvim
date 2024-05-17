@@ -4,6 +4,7 @@
 ---@type (string|me.treesitter.ParserInfo)[]
 local parsers = {
   "gitcommit",
+  "git_rebase",
   "html",
   "hyprlang",
   "javascript",
