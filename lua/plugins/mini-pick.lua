@@ -238,6 +238,38 @@ require("me.lazy").on("mini-pick", {
 
     local unstaged = opts.unstaged ~= false
 
+    local untracked = {}
+    local intent_cmd = { "git", "add", "--intent-to-add", "--" }
+
+    for _, file in
+      ipairs(vim.split(vim.system({ "git", "ls-files", "--others", "--exclude-standard" }):wait().stdout, "\n"))
+    do
+      if file ~= "" then
+        table.insert(untracked, file)
+        table.insert(intent_cmd, file)
+      end
+    end
+
+    vim.system(intent_cmd):wait()
+
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "MiniPickStop",
+      once = true,
+      callback = function()
+        local reset_cmd = { "git", "reset", "--" }
+
+        local staged = vim.split(vim.system({ "git", "diff", "--cached", "--name-only" }):wait().stdout, "\n")
+
+        for _, file in ipairs(untracked) do
+          if not vim.tbl_contains(staged, file) then
+            table.insert(reset_cmd, file)
+          end
+        end
+
+        vim.system(reset_cmd):wait()
+      end,
+    })
+
     local diff_cmd = { "git", "diff", "--patch", "--unified=1", "--color=never", "--", vim.fn.getcwd() }
 
     if not unstaged then
@@ -353,10 +385,14 @@ require("me.lazy").on("mini-pick", {
         toggle = {
           char = "<C-t>",
           func = function()
-            MiniPick.registry.hunks {
-              unstaged = not unstaged,
-              query = MiniPick.get_picker_query(),
-            }
+            vim.schedule(function()
+              MiniPick.registry.hunks {
+                unstaged = not unstaged,
+                query = MiniPick.get_picker_query(),
+              }
+            end)
+
+            return true
           end,
         },
         apply = {
@@ -387,10 +423,14 @@ require("me.lazy").on("mini-pick", {
               })
               :wait()
 
-            MiniPick.registry.hunks {
-              unstaged = unstaged,
-              query = MiniPick.get_picker_query(),
-            }
+            vim.schedule(function()
+              MiniPick.registry.hunks {
+                unstaged = unstaged,
+                query = MiniPick.get_picker_query(),
+              }
+            end)
+
+            return true
           end,
         },
       },
