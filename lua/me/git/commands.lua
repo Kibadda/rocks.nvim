@@ -194,6 +194,10 @@ M.log = create_command {
         vim.api.nvim_win_set_buf(win, bufnr)
       end, { buffer = diffbufnr })
 
+      vim.keymap.set("n", "<CR>", function()
+        vim.api.nvim_win_set_buf(win, bufnr)
+      end, { buffer = diffbufnr })
+
       vim.api.nvim_win_set_buf(win, diffbufnr)
     end, { buffer = bufnr })
   end,
