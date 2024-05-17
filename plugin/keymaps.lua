@@ -34,11 +34,7 @@ local function snippet(direction)
   return function()
     if vim.snippet.active { direction = direction } then
       vim.snippet.jump(direction)
-
-      return ""
     end
-
-    return direction == 1 and "<C-l>" or "<C-h>"
   end
 end
 
@@ -71,5 +67,5 @@ map({ "i", "c" }, "<C-l>", "<C-Right>", "Move word forwards")
 map("n", "gQ", "mzgggqG`z<Cmd>delmark z<CR>zz", "Format Buffer")
 map("n", "]q", "<Cmd>cnext<CR>", "Next quickfix item")
 map("n", "[q", "<Cmd>cprevious<CR>", "Previous quickfix item")
-map({ "i", "s" }, "<C-l>", snippet(1), { expr = true })
-map({ "i", "s" }, "<C-h>", snippet(-1), { expr = true })
+map({ "i", "s" }, "<C-l>", snippet(1))
+map({ "i", "s" }, "<C-h>", snippet(-1))
