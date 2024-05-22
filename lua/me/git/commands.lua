@@ -253,4 +253,35 @@ M.stash = create_command {
   available_opts = { "staged", "include-untracked" },
 }
 
+M.add = create_command {
+  cmd = { "add" },
+  has_filenames = true,
+  pre_run = function(_, cmd)
+    if cmd[#cmd] == "add" then
+      table.insert(cmd, ".")
+    end
+  end,
+  complete = function(_, arg_lead)
+    local split = vim.split(arg_lead, "%s+")
+
+    local complete = vim.tbl_filter(
+      function(opt)
+        if vim.tbl_contains(split, opt) then
+          return false
+        end
+
+        return string.find(opt, "^" .. split[#split]) ~= nil
+      end,
+      vim.list_extend(
+        git_command { "diff", "--name-only" },
+        git_command { "ls-files", "--others", "--exclude-standard" }
+      )
+    )
+
+    table.sort(complete)
+
+    return complete
+  end,
+}
+
 return M

@@ -5,6 +5,7 @@
 ---@field post_run? fun(self: me.git.Command, stdout: string)
 ---@field show_output? boolean
 ---@field complete? fun(self: me.git.Command, arg_lead: string): string[]
+---@field has_filenames? boolean
 local Command = {}
 
 Command.__index = Command
@@ -23,6 +24,20 @@ function Command:run(opts)
       if vim.tbl_contains(opts, opt) then
         table.insert(cmd, "--" .. opt)
       end
+    end
+  end
+
+  if self.has_filenames then
+    local count = #cmd
+
+    for _, opt in ipairs(opts) do
+      if vim.fn.filereadable(opt) == 1 then
+        table.insert(cmd, opt)
+      end
+    end
+
+    if #cmd ~= count then
+      table.insert(cmd, count + 1, "--")
     end
   end
 
