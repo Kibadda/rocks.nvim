@@ -1,5 +1,6 @@
 local create_command = require "me.git.class"
 
+---@param cmd string[]
 local function git_command(cmd)
   table.insert(cmd, 1, "git")
   table.insert(cmd, 2, "--no-pager")
@@ -9,6 +10,7 @@ local function git_command(cmd)
   return vim.split(result.stdout, "\n")
 end
 
+---@return string?
 local function select_commit()
   local commits = {}
   for _, commit in ipairs(git_command { "log", "--pretty=%h|%s" }) do
@@ -29,6 +31,7 @@ local function select_commit()
   return commit
 end
 
+---@return string?
 local function select_branch(remote)
   local cmd = { "branch", "--column=plain" }
 
