@@ -135,6 +135,10 @@ function Command:post_run(stdout)
     end
   end
 
+  if #output > 1 then
+    table.insert(output, 1, { string.rep("─", vim.o.columns) })
+  end
+
   vim.api.nvim_echo(output, true, {})
 end
 
