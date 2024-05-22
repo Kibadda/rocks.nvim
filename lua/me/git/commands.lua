@@ -284,4 +284,24 @@ M.add = create_command {
   end,
 }
 
+M.reset = create_command {
+  cmd = { "reset" },
+  has_filenames = true,
+  complete = function(_, arg_lead)
+    local split = vim.split(arg_lead, "%s+")
+
+    local complete = vim.tbl_filter(function(opt)
+      if vim.tbl_contains(split, opt) then
+        return false
+      end
+
+      return string.find(opt, "^" .. split[#split]) ~= nil
+    end, git_command { "diff", "--cached", "--name-only" })
+
+    table.sort(complete)
+
+    return complete
+  end,
+}
+
 return M
