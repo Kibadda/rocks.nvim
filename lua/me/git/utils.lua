@@ -66,6 +66,26 @@ vim.api.nvim_create_autocmd("CmdlineLeave", {
 })
 
 ---@return string?
+function M.select_remote()
+  local remotes = {}
+  for _, remote in ipairs(M.git_command { "remote" }) do
+    if remote ~= "" then
+      table.insert(remotes, remote)
+    end
+  end
+
+  local remote
+
+  vim.ui.select(remotes, {
+    prompt = "Remote",
+  }, function(item)
+    remote = item
+  end)
+
+  return remote
+end
+
+---@return string?
 function M.select_commit()
   local commits = {}
   for _, commit in ipairs(M.git_command { "log", "--pretty=%h|%s" }) do

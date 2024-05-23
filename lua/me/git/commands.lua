@@ -67,7 +67,25 @@ M.rebase = create_command {
 M.push = create_command {
   cmd = { "push" },
   show_output = true,
-  completions = { "--force-with-lease" },
+  pre_run = function(_, fargs)
+    if #fargs == 1 and fargs[1] == "--set-upstream" then
+      local remote = utils.select_remote()
+
+      if not remote then
+        return false
+      end
+
+      table.insert(fargs, remote)
+      table.insert(fargs, utils.git_command({ "branch", "--show-current" })[1])
+    end
+  end,
+  completions = function(fargs)
+    if #fargs > 1 then
+      return {}
+    end
+
+    return { "--force-with-lease", "--set-upstream" }
+  end,
 }
 
 M.pull = create_command {
