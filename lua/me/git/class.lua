@@ -1,12 +1,10 @@
 ---@class me.git.Command
 ---@field cmd string[]
----@field available_opts? string[]
----@field pre_run? fun(self: me.git.Command, opts: string[]): boolean?
+---@field pre_run? fun(self: me.git.Command, fargs: string[]): boolean?
 ---@field post_run? fun(self: me.git.Command, stdout: string)
 ---@field show_output? boolean
 ---@field complete? fun(self: me.git.Command, arg_lead: string): string[]
----@field completions? fun(fargs: string[]): string[]
----@field additional_opts? boolean
+---@field completions? string[]|fun(fargs: string[]): string[]
 local Command = {}
 
 Command.__index = Command
@@ -15,25 +13,14 @@ function Command:run(fargs)
   local stdout = ""
 
   local cmd = vim.list_extend({ "git", "--no-pager" }, self.cmd)
-  local opts = {}
-
-  if self.available_opts then
-    for _, opt in ipairs(self.available_opts) do
-      if vim.tbl_contains(fargs, opt) then
-        table.insert(opts, "--" .. opt)
-      end
-    end
-  elseif self.additional_opts then
-    vim.list_extend(opts, fargs)
-  end
 
   if self.pre_run then
-    if self:pre_run(opts) == false then
+    if self:pre_run(fargs) == false then
       return
     end
   end
 
-  vim.fn.jobstart(vim.list_extend(cmd, opts), {
+  vim.fn.jobstart(vim.list_extend(cmd, fargs), {
     cwd = vim.fn.getcwd(),
     env = {
       GIT_EDITOR = "nvim --headless --clean --noplugin -n -R -u "
@@ -67,7 +54,7 @@ function Command:complete(arg_lead)
     end
 
     return string.find(opt, "^" .. split[#split]:gsub("%-", "%%-")) ~= nil
-  end, self.completions and self.completions(split) or self.available_opts or {})
+  end, self.completions and self.completions(split) or {})
 
   table.sort(complete)
 

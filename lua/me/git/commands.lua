@@ -5,30 +5,37 @@ local M = {}
 
 M.commit = create_command {
   cmd = { "commit" },
-  available_opts = { "amend", "no-edit" },
-}
+  pre_run = function(_, fargs)
+    if #fargs == 1 and fargs[1] == "--fixup" then
+      local commit = utils.select_commit()
 
-M.fixup = create_command {
-  cmd = { "commit", "--fixup" },
-  pre_run = function(_, opts)
-    local commit = utils.select_commit()
+      if not commit then
+        return false
+      end
 
-    if not commit then
-      return false
+      table.insert(fargs, commit)
     end
-
-    table.insert(opts, commit)
+  end,
+  completions = function(fargs)
+    if vim.tbl_contains(fargs, "--fixup") then
+      return {}
+    else
+      if #fargs > 1 then
+        return { "--amend", "--no-edit" }
+      else
+        return { "--amend", "--no-edit", "--fixup" }
+      end
+    end
   end,
 }
 
 M.rebase = create_command {
   cmd = { "rebase" },
-  available_opts = { "interactive", "autosquash", "abort", "skip", "continue" },
-  pre_run = function(_, opts)
+  pre_run = function(_, fargs)
     local should_select_commit = true
 
-    for _, opt in ipairs(opts) do
-      if opt == "--abort" or opt == "--skip" or opt == "--continue" then
+    for _, arg in ipairs(fargs) do
+      if arg == "--abort" or arg == "--skip" or arg == "--continue" then
         should_select_commit = false
         break
       end
@@ -41,7 +48,7 @@ M.rebase = create_command {
         return false
       end
 
-      table.insert(opts, commit .. "^")
+      table.insert(fargs, commit .. "^")
     end
   end,
   completions = function(fargs)
@@ -49,18 +56,18 @@ M.rebase = create_command {
       if #fargs > 1 then
         return {}
       else
-        return { "abort", "skip", "continue" }
+        return { "--abort", "--skip", "--continue" }
       end
     else
-      return { "interactive", "autosquash" }
+      return { "--interactive", "--autosquash" }
     end
   end,
 }
 
 M.push = create_command {
   cmd = { "push" },
-  available_opts = { "force-with-lease" },
   show_output = true,
+  completions = { "--force-with-lease" },
 }
 
 M.pull = create_command {
@@ -75,8 +82,8 @@ M.status = create_command {
 
 M.fetch = create_command {
   cmd = { "fetch" },
-  available_opts = { "prune" },
   show_output = true,
+  completions = { "--prune" },
 }
 
 M.log = create_command {
@@ -160,7 +167,6 @@ M.log = create_command {
 
 M.switch = create_command {
   cmd = { "switch" },
-  additional_opts = true,
   pre_run = function(_, opts)
     if #opts == 0 then
       local branch
@@ -190,7 +196,6 @@ M.switch = create_command {
 
 M.merge = create_command {
   cmd = { "merge" },
-  additional_opts = true,
   pre_run = function(_, opts)
     return #opts == 0
   end,
@@ -205,12 +210,11 @@ M.merge = create_command {
 
 M.stash = create_command {
   cmd = { "stash" },
-  available_opts = { "staged", "include-untracked" },
+  completions = { "--staged", "--include-untracked" },
 }
 
 M.add = create_command {
   cmd = { "add" },
-  additional_opts = true,
   pre_run = function(_, opts)
     if #opts == 0 then
       table.insert(opts, ".")
@@ -223,7 +227,6 @@ M.add = create_command {
 
 M.reset = create_command {
   cmd = { "reset" },
-  additional_opts = true,
   completions = function()
     return utils.cache.staged_filenames
   end,
