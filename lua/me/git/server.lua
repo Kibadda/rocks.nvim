@@ -11,6 +11,8 @@ function M.open(file, client)
   local filetype
   if file:find "COMMIT_EDITMSG$" then
     filetype = "gitcommit"
+  elseif file:find "MERGE_MSG$" then
+    filetype = "gitcommit"
   elseif file:find "git%-rebase%-todo" then
     filetype = "git_rebase"
   end
