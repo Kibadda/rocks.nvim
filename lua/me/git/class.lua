@@ -5,6 +5,7 @@
 ---@field post_run? fun(self: me.git.Command, stdout: string)
 ---@field show_output? boolean
 ---@field complete? fun(self: me.git.Command, arg_lead: string): string[]
+---@field completions? fun(fargs: string[]): string[]
 ---@field additional_opts? boolean
 local Command = {}
 
@@ -66,7 +67,7 @@ function Command:complete(arg_lead)
     end
 
     return string.find(opt, "^" .. split[#split]:gsub("%-", "%%-")) ~= nil
-  end, self.available_opts or {})
+  end, self.completions and self.completions(split) or self.available_opts or {})
 
   table.sort(complete)
 

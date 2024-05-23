@@ -14,7 +14,7 @@ end
 ---@field staged_filenames string[]
 
 ---@type me.git.CompleteCache
-local cache = setmetatable({}, {
+M.cache = setmetatable({}, {
   ---@param self table
   ---@param key "short_branches"|"full_branches"|"unstaged_filenames"|"staged_filenames"
   ---@return string[]
@@ -59,8 +59,8 @@ local cache = setmetatable({}, {
 vim.api.nvim_create_autocmd("CmdlineLeave", {
   group = vim.api.nvim_create_augroup("GitCmdlineLeave", { clear = true }),
   callback = function()
-    for key in pairs(cache) do
-      cache[key] = nil
+    for key in pairs(M.cache) do
+      M.cache[key] = nil
     end
   end,
 })
@@ -84,46 +84,6 @@ function M.select_commit()
   end)
 
   return commit
-end
-
----@param scope "short"|"full"
----@return fun(_: me.git.Command, arg_lead: string): string[]
-function M.complete_branches(scope)
-  return function(_, arg_lead)
-    local split = vim.split(arg_lead, "%s")
-
-    if #split > 1 then
-      return {}
-    end
-
-    local complete = vim.tbl_filter(function(opt)
-      return string.find(opt, "^" .. split[#split]:gsub("%-", "%%-")) ~= nil
-    end, scope == "short" and cache.short_branches or cache.full_branches)
-
-    table.sort(complete)
-
-    return complete
-  end
-end
-
----@param scope "add"|"reset"
----@return fun(_: me.git.Command, arg_lead: string): string[]
-function M.complete_filenames(scope)
-  return function(_, arg_lead)
-    local split = vim.split(arg_lead, "%s+")
-
-    local complete = vim.tbl_filter(function(opt)
-      if vim.tbl_contains(split, opt) then
-        return false
-      end
-
-      return string.find(opt, "^" .. split[#split]:gsub("%-", "%%-")) ~= nil
-    end, scope == "add" and cache.unstaged_filenames or cache.staged_filenames)
-
-    table.sort(complete)
-
-    return complete
-  end
 end
 
 return M

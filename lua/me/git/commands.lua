@@ -44,31 +44,16 @@ M.rebase = create_command {
       table.insert(opts, commit .. "^")
     end
   end,
-  complete = function(_, arg_lead)
-    local split = vim.split(arg_lead, "%s+")
-
-    local available_opts
+  completions = function(fargs)
     if vim.fn.isdirectory ".git/rebase-apply" == 1 or vim.fn.isdirectory ".git/rebase-merge" == 1 then
-      if #split > 1 then
-        available_opts = {}
+      if #fargs > 1 then
+        return {}
       else
-        available_opts = { "abort", "skip", "continue" }
+        return { "abort", "skip", "continue" }
       end
     else
-      available_opts = { "interactive", "autosquash" }
+      return { "interactive", "autosquash" }
     end
-
-    local complete = vim.tbl_filter(function(opt)
-      if vim.tbl_contains(split, opt) then
-        return false
-      end
-
-      return string.find(opt, "^" .. split[#split]) ~= nil
-    end, available_opts)
-
-    table.sort(complete)
-
-    return complete
   end,
 }
 
@@ -194,7 +179,13 @@ M.switch = create_command {
       table.insert(opts, branch)
     end
   end,
-  complete = utils.complete_branches "short",
+  completions = function(fargs)
+    if #fargs > 1 then
+      return {}
+    end
+
+    return utils.cache.short_branches
+  end,
 }
 
 M.merge = create_command {
@@ -203,7 +194,13 @@ M.merge = create_command {
   pre_run = function(_, opts)
     return #opts == 0
   end,
-  complete = utils.complete_branches "full",
+  completions = function(fargs)
+    if #fargs > 1 then
+      return {}
+    end
+
+    return utils.cache.full_branches
+  end,
 }
 
 M.stash = create_command {
@@ -219,13 +216,17 @@ M.add = create_command {
       table.insert(opts, ".")
     end
   end,
-  complete = utils.complete_filenames "add",
+  completions = function()
+    return utils.cache.unstaged_filenames
+  end,
 }
 
 M.reset = create_command {
   cmd = { "reset" },
   additional_opts = true,
-  complete = utils.complete_filenames "reset",
+  completions = function()
+    return utils.cache.staged_filenames
+  end,
 }
 
 return M
