@@ -7,6 +7,44 @@ function M.git_command(cmd)
   return vim.split(result.stdout, "\n")
 end
 
+---@class me.git.CompleteCache
+---@field unstaged_filenames string[]
+---@field staged_filenames string[]
+
+---@type me.git.CompleteCache
+local cache = setmetatable({}, {
+  ---@param self table
+  ---@param key "unstaged_filenames"|"staged_filenames"
+  ---@return string[]
+  __index = function(self, key)
+    if key == "unstaged_filenames" then
+      local files = {}
+
+      for _, file in ipairs(M.git_command { "diff", "--name-only" }) do
+        files[file] = true
+      end
+      for _, file in ipairs(M.git_command { "ls-files", "--others", "--exclude-standard" }) do
+        files[file] = true
+      end
+
+      self[key] = vim.tbl_keys(files)
+    elseif key == "staged_filenames" then
+      self[key] = M.git_command { "diff", "--cached", "--name-only" }
+    end
+
+    return self[key]
+  end,
+})
+
+vim.api.nvim_create_autocmd("CmdlineLeave", {
+  group = vim.api.nvim_create_augroup("GitCmdlineLeave", { clear = true }),
+  callback = function()
+    for key in pairs(cache) do
+      cache[key] = nil
+    end
+  end,
+})
+
 ---@return string?
 function M.select_commit()
   local commits = {}
@@ -60,21 +98,13 @@ function M.complete_filenames(scope)
   return function(_, arg_lead)
     local split = vim.split(arg_lead, "%s+")
 
-    local complete = vim.tbl_filter(
-      function(opt)
-        if vim.tbl_contains(split, opt) then
-          return false
-        end
+    local complete = vim.tbl_filter(function(opt)
+      if vim.tbl_contains(split, opt) then
+        return false
+      end
 
-        return string.find(opt, "^" .. split[#split]) ~= nil
-      end,
-      scope == "add"
-          and vim.list_extend(
-            M.git_command { "diff", "--name-only" },
-            M.git_command { "ls-files", "--others", "--exclude-standard" }
-          )
-        or M.git_command { "diff", "--cached", "--name-only" }
-    )
+      return string.find(opt, "^" .. split[#split]:gsub("%-", "%%-")) ~= nil
+    end, scope == "add" and cache.unstaged_filenames or cache.staged_filenames)
 
     table.sort(complete)
 
