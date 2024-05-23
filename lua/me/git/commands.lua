@@ -1,61 +1,5 @@
 local create_command = require "me.git.class"
-
----@param cmd string[]
-local function git_command(cmd)
-  table.insert(cmd, 1, "git")
-  table.insert(cmd, 2, "--no-pager")
-
-  local result = vim.system(cmd):wait()
-
-  return vim.split(result.stdout, "\n")
-end
-
----@return string?
-local function select_commit()
-  local commits = {}
-  for _, commit in ipairs(git_command { "log", "--pretty=%h|%s" }) do
-    table.insert(commits, vim.split(commit, "|"))
-  end
-
-  local commit
-
-  vim.ui.select(commits, {
-    prompt = "Commit",
-    format_item = function(item)
-      return item[2]
-    end,
-  }, function(item)
-    commit = item and item[1] or nil
-  end)
-
-  return commit
-end
-
----@return string?
-local function select_branch(remote)
-  local cmd = { "branch", "--column=plain" }
-
-  if remote then
-    table.insert(cmd, "-r")
-  end
-
-  local branches = {}
-  for _, branch in ipairs(git_command(cmd)) do
-    if not branch:find "HEAD" then
-      table.insert(branches, vim.trim(branch:gsub("*", "")))
-    end
-  end
-
-  local branch
-
-  vim.ui.select(branches, {
-    prompt = "Branch",
-  }, function(item)
-    branch = item
-  end)
-
-  return branch
-end
+local utils = require "me.git.utils"
 
 local M = {}
 
@@ -67,7 +11,7 @@ M.commit = create_command {
 M.fixup = create_command {
   cmd = { "commit", "--fixup" },
   pre_run = function(_, opts)
-    local commit = select_commit()
+    local commit = utils.select_commit()
 
     if not commit then
       return false
@@ -81,7 +25,7 @@ M.rebase = create_command {
   cmd = { "rebase" },
   available_opts = { "interactive", "autosquash", "abort", "skip", "continue" },
   pre_run = function(_, opts)
-    local commit = select_commit()
+    local commit = utils.select_commit()
 
     if not commit then
       return false
@@ -193,7 +137,7 @@ M.log = create_command {
       local line = vim.api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
       local hash = line:match "^([^%s]+)"
 
-      local difflines = git_command { "diff", string.format("%s^..%s", hash, hash) }
+      local difflines = utils.git_command { "diff", string.format("%s^..%s", hash, hash) }
 
       local diffbufnr = vim.api.nvim_create_buf(false, false)
       vim.api.nvim_buf_set_lines(diffbufnr, 0, -1, false, difflines)
@@ -227,7 +171,7 @@ M.switch = create_command {
         branch = input
       end)
     else
-      branch = select_branch(false)
+      branch = utils.select_branch(false)
     end
 
     if not branch then
@@ -241,7 +185,7 @@ M.switch = create_command {
 M.merge = create_command {
   cmd = { "merge" },
   pre_run = function(_, opts)
-    local branch = select_branch(true)
+    local branch = utils.select_branch(true)
 
     if not branch then
       return false
@@ -264,47 +208,13 @@ M.add = create_command {
       table.insert(opts, ".")
     end
   end,
-  complete = function(_, arg_lead)
-    local split = vim.split(arg_lead, "%s+")
-
-    local complete = vim.tbl_filter(
-      function(opt)
-        if vim.tbl_contains(split, opt) then
-          return false
-        end
-
-        return string.find(opt, "^" .. split[#split]) ~= nil
-      end,
-      vim.list_extend(
-        git_command { "diff", "--name-only" },
-        git_command { "ls-files", "--others", "--exclude-standard" }
-      )
-    )
-
-    table.sort(complete)
-
-    return complete
-  end,
+  complete = utils.complete_filenames "add",
 }
 
 M.reset = create_command {
   cmd = { "reset" },
   additional_opts = true,
-  complete = function(_, arg_lead)
-    local split = vim.split(arg_lead, "%s+")
-
-    local complete = vim.tbl_filter(function(opt)
-      if vim.tbl_contains(split, opt) then
-        return false
-      end
-
-      return string.find(opt, "^" .. split[#split]) ~= nil
-    end, git_command { "diff", "--cached", "--name-only" })
-
-    table.sort(complete)
-
-    return complete
-  end,
+  complete = utils.complete_filenames "reset",
 }
 
 return M
