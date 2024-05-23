@@ -89,7 +89,9 @@ end
 function M.select_commit()
   local commits = {}
   for _, commit in ipairs(M.git_command { "log", "--pretty=%h|%s" }) do
-    table.insert(commits, vim.split(commit, "|"))
+    if commit ~= "" then
+      table.insert(commits, vim.split(commit, "|"))
+    end
   end
 
   local commit
