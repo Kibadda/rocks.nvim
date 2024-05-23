@@ -65,7 +65,7 @@ function Command:complete(arg_lead)
       return false
     end
 
-    return string.find(opt, "^" .. split[#split]) ~= nil
+    return string.find(opt, "^" .. split[#split]:gsub("%-", "%%-")) ~= nil
   end, self.available_opts or {})
 
   table.sort(complete)
