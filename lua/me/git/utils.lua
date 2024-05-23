@@ -65,47 +65,54 @@ vim.api.nvim_create_autocmd("CmdlineLeave", {
   end,
 })
 
----@return string?
 function M.select_remote()
-  local remotes = {}
-  for _, remote in ipairs(M.git_command { "remote" }) do
-    if remote ~= "" then
-      table.insert(remotes, remote)
-    end
-  end
-
-  local remote
-
-  vim.ui.select(remotes, {
+  return M.select {
+    cmd = { "remote" },
     prompt = "Remote",
-  }, function(item)
-    remote = item
-  end)
-
-  return remote
+  }
 end
 
----@return string?
 function M.select_commit()
-  local commits = {}
-  for _, commit in ipairs(M.git_command { "log", "--pretty=%h|%s" }) do
-    if commit ~= "" then
-      table.insert(commits, vim.split(commit, "|"))
+  return M.select {
+    cmd = { "log", "--pretty=%h|%s" },
+    prompt = "Commit",
+    decode = function(line)
+      return vim.split(line, "|")
+    end,
+    format = function(item)
+      return item[2]
+    end,
+    choice = function(item)
+      return item and item[1] or nil
+    end,
+  }
+end
+
+---@param opts { cmd: string[], prompt: string, decode?: function, format?: function, choice?: function }
+---@return string?
+function M.select(opts)
+  local lines = {}
+
+  for _, line in ipairs(M.git_command(opts.cmd)) do
+    if line ~= "" then
+      table.insert(lines, opts.decode and opts.decode(line) or line)
     end
   end
 
-  local commit
+  if #lines <= 1 then
+    return lines[1]
+  end
 
-  vim.ui.select(commits, {
-    prompt = "Commit",
-    format_item = function(item)
-      return item[2]
-    end,
+  local choice
+
+  vim.ui.select(lines, {
+    prompt = opts.prompt,
+    format_item = opts.format,
   }, function(item)
-    commit = item and item[1] or nil
+    choice = opts.choice and opts.choice(item) or item
   end)
 
-  return commit
+  return choice
 end
 
 return M
