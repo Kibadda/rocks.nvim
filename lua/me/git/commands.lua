@@ -25,13 +25,24 @@ M.rebase = create_command {
   cmd = { "rebase" },
   available_opts = { "interactive", "autosquash", "abort", "skip", "continue" },
   pre_run = function(_, opts)
-    local commit = utils.select_commit()
+    local should_select_commit = true
 
-    if not commit then
-      return false
+    for _, opt in ipairs(opts) do
+      if opt == "--abort" or opt == "--skip" or opt == "--continue" then
+        should_select_commit = false
+        break
+      end
     end
 
-    table.insert(opts, commit .. "^")
+    if should_select_commit then
+      local commit = utils.select_commit()
+
+      if not commit then
+        return false
+      end
+
+      table.insert(opts, commit .. "^")
+    end
   end,
   complete = function(self, arg_lead)
     local split = vim.split(arg_lead, "%s+")
