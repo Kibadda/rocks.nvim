@@ -66,28 +66,28 @@ M.commit = create_command {
 
 M.fixup = create_command {
   cmd = { "commit", "--fixup" },
-  pre_run = function(_, cmd)
+  pre_run = function(_, opts)
     local commit = select_commit()
 
     if not commit then
       return false
     end
 
-    table.insert(cmd, commit)
+    table.insert(opts, commit)
   end,
 }
 
 M.rebase = create_command {
   cmd = { "rebase" },
   available_opts = { "interactive", "autosquash", "abort", "skip", "continue" },
-  pre_run = function(_, cmd)
+  pre_run = function(_, opts)
     local commit = select_commit()
 
     if not commit then
       return false
     end
 
-    table.insert(cmd, commit .. "^")
+    table.insert(opts, commit .. "^")
   end,
   complete = function(self, arg_lead)
     local split = vim.split(arg_lead, "%s+")
@@ -218,9 +218,9 @@ M.log = create_command {
 M.switch = create_command {
   cmd = { "switch" },
   available_opts = { "create" },
-  pre_run = function(_, cmd)
+  pre_run = function(_, opts)
     local branch
-    if vim.tbl_contains(cmd, "--create") then
+    if vim.tbl_contains(opts, "--create") then
       vim.ui.input({
         prompt = "Enter branch name: ",
       }, function(input)
@@ -234,20 +234,20 @@ M.switch = create_command {
       return false
     end
 
-    table.insert(cmd, branch)
+    table.insert(opts, branch)
   end,
 }
 
 M.merge = create_command {
   cmd = { "merge" },
-  pre_run = function(_, cmd)
+  pre_run = function(_, opts)
     local branch = select_branch(true)
 
     if not branch then
       return false
     end
 
-    table.insert(cmd, branch)
+    table.insert(opts, branch)
   end,
 }
 
@@ -258,10 +258,10 @@ M.stash = create_command {
 
 M.add = create_command {
   cmd = { "add" },
-  has_filenames = true,
-  pre_run = function(_, cmd)
-    if cmd[#cmd] == "add" then
-      table.insert(cmd, ".")
+  additional_opts = true,
+  pre_run = function(_, opts)
+    if #opts == 0 then
+      table.insert(opts, ".")
     end
   end,
   complete = function(_, arg_lead)
@@ -289,7 +289,7 @@ M.add = create_command {
 
 M.reset = create_command {
   cmd = { "reset" },
-  has_filenames = true,
+  additional_opts = true,
   complete = function(_, arg_lead)
     local split = vim.split(arg_lead, "%s+")
 

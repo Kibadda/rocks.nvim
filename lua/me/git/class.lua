@@ -1,53 +1,38 @@
 ---@class me.git.Command
 ---@field cmd string[]
 ---@field available_opts? string[]
----@field pre_run? fun(self: me.git.Command, cmd: string[]): boolean?
+---@field pre_run? fun(self: me.git.Command, opts: string[]): boolean?
 ---@field post_run? fun(self: me.git.Command, stdout: string)
 ---@field show_output? boolean
 ---@field complete? fun(self: me.git.Command, arg_lead: string): string[]
----@field has_filenames? boolean
+---@field additional_opts? boolean
 local Command = {}
 
 Command.__index = Command
 
-function Command:run(opts)
+function Command:run(fargs)
   local stdout = ""
 
-  local cmd = { "git", "--no-pager" }
-
-  for _, part in ipairs(self.cmd) do
-    table.insert(cmd, part)
-  end
+  local cmd = vim.list_extend({ "git", "--no-pager" }, self.cmd)
+  local opts = {}
 
   if self.available_opts then
     for _, opt in ipairs(self.available_opts) do
-      if vim.tbl_contains(opts, opt) then
-        table.insert(cmd, "--" .. opt)
+      if vim.tbl_contains(fargs, opt) then
+        table.insert(opts, "--" .. opt)
       end
     end
-  end
-
-  if self.has_filenames then
-    local count = #cmd
-
-    for _, opt in ipairs(opts) do
-      if vim.fn.filereadable(opt) == 1 then
-        table.insert(cmd, opt)
-      end
-    end
-
-    if #cmd ~= count then
-      table.insert(cmd, count + 1, "--")
-    end
+  elseif self.additional_opts then
+    vim.list_extend(opts, fargs)
   end
 
   if self.pre_run then
-    if self:pre_run(cmd) == false then
+    if self:pre_run(opts) == false then
       return
     end
   end
 
-  vim.fn.jobstart(cmd, {
+  vim.fn.jobstart(vim.list_extend(cmd, opts), {
     cwd = vim.fn.getcwd(),
     env = {
       GIT_EDITOR = "nvim --headless --clean --noplugin -n -R -u "
