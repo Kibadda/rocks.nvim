@@ -175,38 +175,35 @@ M.log = create_command {
 
 M.switch = create_command {
   cmd = { "switch" },
-  available_opts = { "create" },
+  additional_opts = true,
   pre_run = function(_, opts)
-    local branch
-    if vim.tbl_contains(opts, "--create") then
+    if #opts == 0 then
+      local branch
+
       vim.ui.input({
         prompt = "Enter branch name: ",
       }, function(input)
         branch = input
       end)
-    else
-      branch = utils.select_branch(false)
-    end
 
-    if not branch then
-      return false
-    end
+      if not branch or branch == "" then
+        return false
+      end
 
-    table.insert(opts, branch)
+      table.insert(opts, "--create")
+      table.insert(opts, branch)
+    end
   end,
+  complete = utils.complete_branches "short",
 }
 
 M.merge = create_command {
   cmd = { "merge" },
+  additional_opts = true,
   pre_run = function(_, opts)
-    local branch = utils.select_branch(true)
-
-    if not branch then
-      return false
-    end
-
-    table.insert(opts, branch)
+    return #opts == 0
   end,
+  complete = utils.complete_branches "full",
 }
 
 M.stash = create_command {

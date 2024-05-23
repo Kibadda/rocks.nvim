@@ -8,16 +8,36 @@ function M.git_command(cmd)
 end
 
 ---@class me.git.CompleteCache
+---@field short_branches string[]
+---@field full_branches string[]
 ---@field unstaged_filenames string[]
 ---@field staged_filenames string[]
 
 ---@type me.git.CompleteCache
 local cache = setmetatable({}, {
   ---@param self table
-  ---@param key "unstaged_filenames"|"staged_filenames"
+  ---@param key "short_branches"|"full_branches"|"unstaged_filenames"|"staged_filenames"
   ---@return string[]
   __index = function(self, key)
-    if key == "unstaged_filenames" then
+    if key:find "branches" then
+      local branches = {}
+
+      for _, branch in ipairs(M.git_command { "branch", "--column=plain", "--all" }) do
+        if not branch:find "HEAD" and branch ~= "" then
+          branch = vim.trim(branch:gsub("*", ""))
+
+          if key == "short_branches" then
+            branch = branch:gsub("remotes/[^/]+/", "")
+          elseif key == "full_branches" then
+            branch = branch:gsub("remotes/", "")
+          end
+
+          branches[branch] = true
+        end
+      end
+
+      self[key] = vim.tbl_keys(branches)
+    elseif key == "unstaged_filenames" then
       local files = {}
 
       for _, file in ipairs(M.git_command { "diff", "--name-only" }) do
@@ -66,30 +86,24 @@ function M.select_commit()
   return commit
 end
 
----@return string?
-function M.select_branch(remote)
-  local cmd = { "branch", "--column=plain" }
+---@param scope "short"|"full"
+---@return fun(_: me.git.Command, arg_lead: string): string[]
+function M.complete_branches(scope)
+  return function(_, arg_lead)
+    local split = vim.split(arg_lead, "%s")
 
-  if remote then
-    table.insert(cmd, "-r")
-  end
-
-  local branches = {}
-  for _, branch in ipairs(M.git_command(cmd)) do
-    if not branch:find "HEAD" then
-      table.insert(branches, vim.trim(branch:gsub("*", "")))
+    if #split > 1 then
+      return {}
     end
+
+    local complete = vim.tbl_filter(function(opt)
+      return string.find(opt, "^" .. split[#split]:gsub("%-", "%%-")) ~= nil
+    end, scope == "short" and cache.short_branches or cache.full_branches)
+
+    table.sort(complete)
+
+    return complete
   end
-
-  local branch
-
-  vim.ui.select(branches, {
-    prompt = "Branch",
-  }, function(item)
-    branch = item
-  end)
-
-  return branch
 end
 
 ---@param scope "add"|"reset"
