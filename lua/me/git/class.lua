@@ -107,7 +107,7 @@ function Command:post_run(stdout)
         if vim.startswith(line, "\t") then
           table.insert(output, { "\n" .. line, highlight })
         else
-          local cstart, cend, branch = line:find "('%w+/%w+')"
+          local cstart, cend, branch = line:find "('[a-zA-z%-]+/[a-zA-z%-]+')"
           if cstart then
             table.insert(output, { "\n" .. line:sub(1, cstart - 1) })
             table.insert(output, { branch, "Blue" })
