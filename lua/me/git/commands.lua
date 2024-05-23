@@ -44,14 +44,17 @@ M.rebase = create_command {
       table.insert(opts, commit .. "^")
     end
   end,
-  complete = function(self, arg_lead)
+  complete = function(_, arg_lead)
     local split = vim.split(arg_lead, "%s+")
 
-    local available_opts = self.available_opts or {}
-
-    if vim.tbl_contains(split, "abort") or vim.tbl_contains(split, "skip") or vim.tbl_contains(split, "continue") then
-      available_opts = {}
-    elseif vim.tbl_contains(split, "interactive") or vim.tbl_contains(split, "autosquash") then
+    local available_opts
+    if vim.fn.isdirectory ".git/rebase-apply" == 1 or vim.fn.isdirectory ".git/rebase-merge" == 1 then
+      if #split > 1 then
+        available_opts = {}
+      else
+        available_opts = { "abort", "skip", "continue" }
+      end
+    else
       available_opts = { "interactive", "autosquash" }
     end
 
