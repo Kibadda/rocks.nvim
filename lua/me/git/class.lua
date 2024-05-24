@@ -26,11 +26,12 @@ function Command:run(fargs)
   local line = ""
   local stdout = {}
 
+  local client_path = vim.fs.joinpath(vim.fn.stdpath "config" --[[@as string]], "lua", "me", "git", "client.lua")
+
   vim.fn.jobstart(vim.list_extend(cmd, fargs), {
     cwd = vim.fn.getcwd(),
     env = {
-      GIT_EDITOR = "nvim --headless --clean --noplugin -n -R -u "
-        .. vim.fs.joinpath(vim.fn.stdpath "config" --[[@as string]], "lua", "me", "git", "client.lua"),
+      GIT_EDITOR = "nvim --headless --clean -u " .. client_path,
     },
     pty = true,
     width = 80,
