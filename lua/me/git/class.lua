@@ -1,7 +1,7 @@
 ---@class me.git.Command
 ---@field cmd string[]
 ---@field pre_run? fun(self: me.git.Command, fargs: string[]): boolean?
----@field post_run? fun(self: me.git.Command, stdout: string)
+---@field post_run? fun(self: me.git.Command, stdout: string[])
 ---@field show_output? boolean
 ---@field complete? fun(self: me.git.Command, arg_lead: string): string[]
 ---@field completions? string[]|fun(fargs: string[]): string[]
@@ -10,15 +10,21 @@ local Command = {}
 Command.__index = Command
 
 function Command:run(fargs)
-  local stdout = ""
-
-  local cmd = vim.list_extend({ "git", "--no-pager" }, self.cmd)
+  local cmd = vim.list_extend({
+    "git",
+    "--no-pager",
+    "-c",
+    "color.ui=never",
+  }, self.cmd)
 
   if self.pre_run then
     if self:pre_run(fargs) == false then
       return
     end
   end
+
+  local line = ""
+  local stdout = {}
 
   vim.fn.jobstart(vim.list_extend(cmd, fargs), {
     cwd = vim.fn.getcwd(),
@@ -28,18 +34,24 @@ function Command:run(fargs)
     },
     pty = true,
     width = 80,
-    on_exit = function(_, code)
-      stdout = stdout:gsub("[\27\155][][()#;?%d]*[A-PRZcf-ntqry=><~]", ""):gsub("[\04\08]", ""):gsub("\r", "\n")
+    height = 24,
+    on_stdout = function(_, lines)
+      line = line .. lines[1]:gsub("\r", "")
 
-      if code ~= 0 then
-        vim.notify(stdout, vim.log.levels.ERROR)
-      else
-        self:post_run(stdout)
+      for i = 2, #lines do
+        table.insert(stdout, line)
+        line = lines[i]:gsub("\r", "")
       end
     end,
-    on_stdout = function(_, data)
-      for _, chunk in ipairs(data) do
-        stdout = stdout .. chunk
+    on_exit = function(_, code)
+      if line ~= "" then
+        table.insert(stdout, line)
+      end
+
+      if code ~= 0 then
+        vim.notify(table.concat(stdout, "\n"), vim.log.levels.ERROR)
+      else
+        self:post_run(stdout)
       end
     end,
   })
@@ -66,7 +78,7 @@ function Command:post_run(stdout)
     { "Done: " .. table.concat(self.cmd, " "), "WarningMsg" },
   }
 
-  if self.show_output and stdout ~= "" then
+  if self.show_output then
     local skips = {
       "Compressing objects",
       "Counting objects",
@@ -77,7 +89,7 @@ function Command:post_run(stdout)
     }
 
     local highlight = "Green"
-    for _, line in ipairs(vim.split(stdout, "\n")) do
+    for _, line in ipairs(stdout) do
       local skip = false
 
       for _, find in ipairs(skips) do

@@ -110,7 +110,7 @@ M.log = create_command {
     local lines = {}
     local extmarks = {}
 
-    for i, line in ipairs(vim.split(stdout, "\n")) do
+    for i, line in ipairs(stdout) do
       local full_line, hash, branch, date
 
       full_line, _, hash, branch, date = line:find "^([^%s]+) %- (%([^%)]+%)).*(%([^%)]+%))$"
