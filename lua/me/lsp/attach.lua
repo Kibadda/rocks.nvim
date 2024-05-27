@@ -47,7 +47,7 @@ autocmd("LspAttach", {
       },
       {
         method = methods.textDocument_references,
-        lhs = "gr",
+        lhs = "grr",
         rhs = function()
           vim.lsp.buf.references({
             includeDeclaration = false,
@@ -70,25 +70,6 @@ autocmd("LspAttach", {
           vim.lsp.buf.declaration { on_list = on_list }
         end,
         desc = "Declaration",
-      },
-      {
-        method = methods.textDocument_rename,
-        lhs = "crn",
-        rhs = vim.lsp.buf.rename,
-        desc = "Rename",
-      },
-      {
-        method = methods.textDocument_codeAction,
-        lhs = "crr",
-        rhs = vim.lsp.buf.code_action,
-        desc = "Code Action",
-      },
-      {
-        method = methods.textDocument_signatureHelp,
-        lhs = "<C-s>",
-        rhs = vim.lsp.buf.signature_help,
-        mode = "i",
-        desc = "Signature Help",
       },
       {
         method = methods.textDocument_documentSymbol,
