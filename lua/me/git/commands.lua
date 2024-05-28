@@ -143,7 +143,7 @@ M.switch = create_command {
 M.merge = create_command {
   cmd = { "merge" },
   pre_run = function(_, opts)
-    return #opts == 0
+    return #opts > 0
   end,
   completions = function(fargs)
     if #fargs > 1 then
