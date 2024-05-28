@@ -19,12 +19,10 @@ M.commit = create_command {
   completions = function(fargs)
     if vim.tbl_contains(fargs, "--fixup") then
       return {}
+    elseif #fargs > 1 then
+      return { "--amend", "--no-edit" }
     else
-      if #fargs > 1 then
-        return { "--amend", "--no-edit" }
-      else
-        return { "--amend", "--no-edit", "--fixup" }
-      end
+      return { "--amend", "--no-edit", "--fixup" }
     end
   end,
 }
