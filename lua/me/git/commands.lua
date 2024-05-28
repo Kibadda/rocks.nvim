@@ -174,7 +174,7 @@ M.add = create_command {
 M.reset = create_command {
   cmd = { "reset" },
   completions = function()
-    return utils.cache.staged_filenames
+    return vim.list_extend({ "--hard" }, utils.cache.staged_filenames)
   end,
 }
 
