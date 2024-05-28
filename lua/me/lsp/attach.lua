@@ -8,6 +8,12 @@ local groups = {
   inlay = augroup("LspAttachInlay", { clear = false }),
 }
 
+local function has_word_before(bufnr)
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+
+  return col ~= 0 and vim.api.nvim_buf_get_lines(bufnr, line - 1, line, true)[1]:sub(col, col):match "%s" == nil
+end
+
 autocmd("LspAttach", {
   group = augroup("LspAttach", { clear = true }),
   callback = function(args)
@@ -138,18 +144,51 @@ autocmd("LspAttach", {
       {
         lhs = "<Leader>lj",
         rhs = function()
-          vim.diagnostic.goto_next()
+          vim.diagnostic.jump { count = 1 }
         end,
         desc = "Next diagnostic",
       },
       {
         lhs = "<Leader>lk",
         rhs = function()
-          vim.diagnostic.goto_prev()
+          vim.diagnostic.jump { count = -1 }
         end,
         desc = "Previous diagnostic",
       },
+      {
+        lhs = "<Tab>",
+        rhs = function()
+          return vim.fn.pumvisible() == 1 and "<C-n>" or (has_word_before(bufnr) and "<C-x><C-o>" or "<Tab>")
+        end,
+        mode = "i",
+        expr = true,
+      },
+      {
+        lhs = "<S-Tab>",
+        rhs = function()
+          return vim.fn.pumvisible() == 1 and "<C-p>" or "<S-Tab>"
+        end,
+        mode = "i",
+        expr = true,
+      },
+      {
+        lhs = "<C-Space>",
+        rhs = function()
+          vim.lsp.completion.trigger()
+        end,
+        mode = "i",
+      },
+      {
+        lhs = "<CR>",
+        rhs = function()
+          return vim.fn.pumvisible() == 1 and "<C-y>" or "<CR>"
+        end,
+        mode = "i",
+        expr = true,
+      },
     }
+
+    vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
 
     for _, mapping in ipairs(maps) do
       if not mapping.method or client.supports_method(mapping.method) then
@@ -157,6 +196,7 @@ autocmd("LspAttach", {
           vim.keymap.set(mapping.mode or "n", mapping.lhs, mapping.rhs, {
             buffer = bufnr,
             desc = mapping.desc,
+            expr = mapping.expr,
           })
         end
 

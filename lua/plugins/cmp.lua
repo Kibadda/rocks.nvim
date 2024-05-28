@@ -1,3 +1,7 @@
+if true then
+  return
+end
+
 require("me.lazy").on("cmp", {
   by_events = {
     { event = "InsertEnter" },
