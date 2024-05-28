@@ -61,13 +61,19 @@ end
 function Command:complete(arg_lead)
   local split = vim.split(arg_lead, "%s+")
 
+  local completions = self.completions or {}
+
+  if type(completions) == "function" then
+    completions = completions(split)
+  end
+
   local complete = vim.tbl_filter(function(opt)
     if vim.tbl_contains(split, opt) then
       return false
     end
 
     return string.find(opt, "^" .. split[#split]:gsub("%-", "%%-")) ~= nil
-  end, self.completions and self.completions(split) or {})
+  end, completions)
 
   table.sort(complete)
 
