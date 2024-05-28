@@ -181,7 +181,7 @@ M.reset = create_command {
 M.delete = create_command {
   cmd = { "branch", "--delete" },
   completions = function()
-    return vim.list_extend({ "--force" }, utils.cache.short_branches)
+    return vim.list_extend({ "--force" }, utils.cache.local_branches)
   end,
 }
 

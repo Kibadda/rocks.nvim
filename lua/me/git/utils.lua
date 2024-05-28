@@ -10,19 +10,26 @@ end
 ---@class me.git.CompleteCache
 ---@field short_branches string[]
 ---@field full_branches string[]
+---@field local_branches string[]
 ---@field unstaged_filenames string[]
 ---@field staged_filenames string[]
 
 ---@type me.git.CompleteCache
 M.cache = setmetatable({}, {
   ---@param self table
-  ---@param key "short_branches"|"full_branches"|"unstaged_filenames"|"staged_filenames"
+  ---@param key "short_branches"|"full_branches"|"local_branches"|"unstaged_filenames"|"staged_filenames"
   ---@return string[]
   __index = function(self, key)
     if key:find "branches" then
       local branches = {}
 
-      for _, branch in ipairs(M.git_command { "branch", "--column=plain", "--all" }) do
+      local cmd = { "branch", "--column=plain" }
+
+      if key ~= "local_branches" then
+        table.insert(cmd, "--all")
+      end
+
+      for _, branch in ipairs(M.git_command(cmd)) do
         if not branch:find "HEAD" and branch ~= "" then
           branch = vim.trim(branch:gsub("*", ""))
 
