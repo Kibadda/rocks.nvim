@@ -52,11 +52,13 @@ function M.open(file, client)
     vim.treesitter.start(bufnr, filetype)
   end
 
-  vim.api.nvim_open_win(bufnr, true, {
+  local win = vim.api.nvim_open_win(bufnr, true, {
     split = "below",
     win = 0,
     height = 20,
   })
+
+  vim.wo[win].spell = true
 end
 
 return M
