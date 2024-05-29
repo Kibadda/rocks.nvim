@@ -29,6 +29,10 @@ local servers = {
           end
         end
 
+        if params.rootPath:find ".nvim" then
+          table.insert(config.settings.Lua.workspace.library, vim.env.VIMRUNTIME .. "/lua")
+        end
+
         if vim.fn.isdirectory(params.rootPath .. "/lua") == 1 then
           table.insert(config.settings.Lua.workspace.library, params.rootPath .. "/lua")
         end
