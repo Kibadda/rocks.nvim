@@ -41,3 +41,7 @@ vim.api.nvim_create_user_command("Git", git, {
   desc = "Git wrapper",
   nargs = "+",
 })
+
+vim.cmd.cabbrev "git Git"
+vim.cmd.cabbrev "GIt Git"
+vim.cmd.cabbrev "GIT Git"
