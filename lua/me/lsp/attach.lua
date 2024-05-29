@@ -89,7 +89,7 @@ autocmd("LspAttach", {
       },
       {
         method = methods.textDocument_codeLens,
-        lhs = "gl",
+        lhs = "grl",
         rhs = function()
           vim.lsp.codelens.run()
         end,
@@ -123,7 +123,7 @@ autocmd("LspAttach", {
       },
       {
         method = methods.textDocument_inlayHint,
-        lhs = "gL",
+        lhs = "gri",
         rhs = function()
           vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = bufnr }, { bufnr = bufnr })
         end,
