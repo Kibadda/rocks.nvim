@@ -32,6 +32,9 @@ vim.diagnostic.config {
   float = {
     border = "single",
   },
+  jump = {
+    float = true,
+  },
 }
 
 require "me.lsp.attach"
