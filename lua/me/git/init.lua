@@ -5,9 +5,12 @@ local function git(args)
 
   local command = commands[subcmd]
 
-  if command then
-    command:run(args.fargs or {})
+  if not command then
+    vim.notify("command '" .. subcmd .. "' not found", vim.log.levels.WARN)
+    return
   end
+
+  command:run(args.fargs or {})
 end
 
 ---@param cmdline string
