@@ -33,7 +33,7 @@ M.rebase = create_command {
     local should_select_commit = true
 
     for _, arg in ipairs(fargs) do
-      if arg == "--abort" or arg == "--skip" or arg == "--continue" then
+      if arg == "--abort" or arg == "--skip" or arg == "--continue" or not vim.startswith(arg, "--") then
         should_select_commit = false
         break
       end
@@ -57,7 +57,7 @@ M.rebase = create_command {
         return { "--abort", "--skip", "--continue" }
       end
     else
-      return { "--interactive", "--autosquash" }
+      return vim.list_extend({ "--interactive", "--autosquash" }, utils.cache.short_branches)
     end
   end,
 }
