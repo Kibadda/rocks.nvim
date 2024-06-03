@@ -387,10 +387,12 @@ require("me.lazy").on("mini-pick", {
         toggle = {
           char = "<C-t>",
           func = function()
+            local query = MiniPick.get_picker_query()
+
             vim.schedule(function()
               MiniPick.registry.hunks {
                 unstaged = not unstaged,
-                query = MiniPick.get_picker_query(),
+                query = query,
               }
             end)
 
@@ -425,10 +427,12 @@ require("me.lazy").on("mini-pick", {
               })
               :wait()
 
+            local query = MiniPick.get_picker_query()
+
             vim.schedule(function()
               MiniPick.registry.hunks {
                 unstaged = unstaged,
-                query = MiniPick.get_picker_query(),
+                query = query,
               }
             end)
 
