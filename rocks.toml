@@ -17,7 +17,6 @@
 "which-key.nvim" = "1.6.0"
 "mason.nvim" = "1.10.0"
 "conform.nvim" = "5.7.0"
-"heirline.nvim" = "1.0.3"
 "nui.nvim" = "0.3.0"
 nvim-web-devicons = "0.100"
 nvim-surround = "2.1.5"
