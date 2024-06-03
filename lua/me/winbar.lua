@@ -1,4 +1,33 @@
-local ok, devicons = pcall(require, "nvim-web-devicons")
+local function icon()
+  local ok, devicons = pcall(require, "nvim-web-devicons")
+
+  if not ok then
+    return ""
+  end
+
+  local ico, hl = devicons.get_icon_by_filetype(vim.bo.filetype)
+
+  if not ico then
+    return ""
+  end
+
+  return "%#" .. hl .. "#" .. ico .. "%* "
+end
+
+local function filepath(path)
+  local filename = vim.fs.basename(path)
+  path = vim.fs.dirname(path)
+
+  if path:sub(1, 1) ~= "/" and path ~= "." then
+    path = "./" .. path
+  end
+
+  return path .. "/%#WinBarFilename#" .. filename .. "%*"
+end
+
+local function modified()
+  return vim.bo.modified and " %#WinBarModified#●︎%*" or ""
+end
 
 return function()
   if vim.bo.buftype ~= "" then
@@ -11,28 +40,5 @@ return function()
     return ""
   end
 
-  local filename = vim.fs.basename(path)
-  path = vim.fs.dirname(path)
-
-  if path:sub(1, 1) ~= "/" and path ~= "." then
-    path = "./" .. path
-  end
-
-  path = path .. "/%#WinBarFilename#" .. filename .. "%*"
-
-  local modified = vim.bo.modified and " %#WinBarModified#●︎%*" or ""
-
-  if not ok then
-    return path .. ":%L" .. modified
-  end
-
-  local icon, hl = devicons.get_icon(vim.fn.fnamemodify(vim.fn.expand "%", ":t"), nil, { default = false })
-
-  icon = type(icon) == "string" and (icon .. " ") or ""
-
-  if type(hl) == "string" then
-    icon = "%#" .. hl .. "#" .. icon .. "%*"
-  end
-
-  return " " .. icon .. path .. ":%L" .. modified
+  return (" %s%s:%%L%s"):format(icon(), filepath(path), modified())
 end

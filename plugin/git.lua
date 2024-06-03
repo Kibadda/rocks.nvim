@@ -12,16 +12,13 @@ local function buf_set_git(buf, git)
   running = false
 
   vim.schedule(function()
-    vim.api.nvim_exec_autocmds("User", {
-      pattern = "GitUpdate",
-      data = { buf = buf },
-    })
+    vim.api.nvim__redraw { statusline = true }
   end)
 end
 
 vim.g.git_head = "no git"
 
-vim.api.nvim_create_autocmd({ "TextChanged", "InsertLeave", "BufEnter", "FocusGained" }, {
+vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "InsertLeave", "BufEnter", "FocusGained" }, {
   group = vim.api.nvim_create_augroup("Git", { clear = true }),
   callback = vim.schedule_wrap(function(args)
     if running or not vim.api.nvim_buf_is_valid(args.buf) or vim.bo[args.buf].buftype ~= "" then

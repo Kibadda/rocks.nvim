@@ -53,3 +53,5 @@ o.undofile = true
 o.updatetime = 250
 o.wildmode = "longest:full,full"
 o.winbar = "%{%v:lua.require'me.winbar'()%}"
+o.statuscolumn = "%{%v:lua.require'me.statuscolumn'()%}"
+o.statusline = "%{%v:lua.require'me.statusline'()%}"

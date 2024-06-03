@@ -481,6 +481,18 @@ local theme = {
   ["@tag.delimiter"] = { fg = "#928374" },
   TreesitterContextBottom = { underline = true, special = "#928374" },
   TreesitterContextLineNumberBottom = { link = "TreesitterContextBottom" },
+  StatusLineNormal = { bg = "#E8D4B0", fg = "#28304D", bold = true },
+  StatusLineVisual = { bg = "#FBC19D", fg = "#28304D", bold = true },
+  StatusLineSelect = { bg = "#FBC19D", fg = "#28304D", bold = true },
+  StatusLineInsert = { bg = "#B5E8B0", fg = "#28304D", bold = true },
+  StatusLineReplace = { bg = "#28304D", fg = "#9CA3AF", bold = true },
+  StatusLineCommand = { bg = "#A5B4FC", fg = "#28304D", bold = true },
+  StatusLineConfirm = { bg = "#BF7471", fg = "#28304D", bold = true },
+  StatusLineTerminal = { bg = "#E8D4B0", fg = "#28304D", bold = true },
+  StatusLineGitHead = { fg = "#A5B4FC" },
+  StatusLineFormatOn = { fg = "#98BC99" },
+  StatusLineFormatOff = { fg = "#BF7471" },
+  StatusLineClients = { bold = true },
 }
 for k, v in pairs(theme) do
   vim.api.nvim_set_hl(0, k, v)
