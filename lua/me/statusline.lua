@@ -17,22 +17,42 @@ local mode_mapping = {
 local function mode()
   local mod = mode_mapping[vim.fn.mode()]
 
-  return "%#" .. mod.hl .. "# " .. mod.text .. " %*", #mod.text + 2
+  return {
+    section = "%#" .. mod.hl .. "# " .. mod.text .. " %* ",
+    length = #mod.text + 3,
+  }
 end
 
 local function git()
   local function diff()
     local status = vim.b.git or {}
 
-    return " %#diffAdded#+"
-      .. (status.added or 0)
-      .. "%#diffRemoved#-"
-      .. (status.removed or 0)
-      .. "%#diffChanged#~"
-      .. (status.changed or 0)
+    local added = status.added or 0
+    local removed = status.removed or 0
+    local changed = status.changed or 0
+
+    return {
+      section = " %#diffAdded#+" .. added .. "%#diffRemoved#-" .. removed .. "%#diffChanged#~" .. changed,
+      length = tostring(added):len() + tostring(removed):len() + tostring(changed):len() + 3,
+    }
   end
 
-  return "%#StatusLineGitHead# " .. vim.g.git_head .. (vim.g.git_head ~= "no git" and diff() or "") .. "%*"
+  local data = {
+    section = "%#StatusLineGitHead# " .. vim.g.git_head,
+    length = #vim.g.git_head + 5,
+    priority = 4,
+  }
+
+  if vim.g.git_head ~= "no git" then
+    local diff_data = diff()
+
+    data.section = data.section .. diff_data.section
+    data.length = data.length + diff_data.length
+  end
+
+  data.section = data.section .. "%* | "
+
+  return data
 end
 
 local function diagnostics()
@@ -43,19 +63,28 @@ local function diagnostics()
   local info = d[3] and (d[3] < 10 and d[3] or "#") or 0
   local hint = d[4] and (d[4] < 10 and d[4] or "#") or 0
 
-  return "%#DiagnosticSignError#E"
-    .. error
-    .. "%#DiagnosticSignWarn#W"
-    .. warning
-    .. "%#DiagnosticSignInfo#I"
-    .. info
-    .. "%#DiagnosticSignHint#H"
-    .. hint
-    .. "%*"
+  return {
+    section = "%#DiagnosticSignError#E"
+      .. error
+      .. "%#DiagnosticSignWarn#W"
+      .. warning
+      .. "%#DiagnosticSignInfo#I"
+      .. info
+      .. "%#DiagnosticSignHint#H"
+      .. hint
+      .. "%* | ",
+    length = tostring(error):len() + tostring(warning):len() + tostring(info):len() + tostring(hint):len() + 7,
+    priority = 3,
+  }
 end
 
 local function filename()
-  return vim.fs.basename(vim.api.nvim_buf_get_name(0))
+  local fname = vim.fs.basename(vim.api.nvim_buf_get_name(0))
+
+  return {
+    section = fname,
+    length = fname:len(),
+  }
 end
 
 local function filetype()
@@ -63,11 +92,21 @@ local function filetype()
 
   local icon, hl
 
+  local data = {
+    section = vim.bo.filetype,
+    length = #vim.bo.filetype,
+  }
+
   if ok then
     icon, hl = devicons.get_icon_by_filetype(vim.bo.filetype)
+
+    if icon then
+      data.section = "%#" .. hl .. "#" .. icon .. "%* " .. data.section
+      data.length = data.length + icon:len() + 1
+    end
   end
 
-  return (icon and ("%#" .. hl .. "#" .. icon .. "%* ") or "") .. vim.bo.filetype
+  return data
 end
 
 local function clients()
@@ -85,15 +124,25 @@ local function clients()
     end
   end
 
-  return "%#StatusLineClients#" .. (#names > 0 and table.concat(names, ", ") or "LS inactive") .. "%*"
+  local list = #names > 0 and table.concat(names, ", ") or "LS inactive"
+
+  return {
+    section = " | %#StatusLineClients#" .. list .. "%*",
+    length = list:len() + 3,
+    priority = 2,
+  }
 end
 
 local function format()
-  return "%#"
-    .. (vim.g.AutoFormat == 1 and "StatusLineFormatOn" or "StatusLineFormatOff")
-    .. "#"
-    .. (vim.g.AutoFormat == 1 and "✓" or "✗")
-    .. "%*"
+  return {
+    section = " | %#"
+      .. (vim.g.AutoFormat == 1 and "StatusLineFormatOn" or "StatusLineFormatOff")
+      .. "#"
+      .. (vim.g.AutoFormat == 1 and "✓" or "✗")
+      .. "%*",
+    length = 4,
+    priority = 1,
+  }
 end
 
 local function position()
@@ -109,15 +158,16 @@ local function position()
     percentage = ("%02d"):format(math.floor((cursor[1] / total) * 100)) .. "%%"
   end
 
-  return "%#"
-    .. mode_mapping[vim.fn.mode()].hl
-    .. "#"
-    .. (" %03d:%03d | %s "):format(cursor[1], cursor[2] + 1, percentage)
-    .. "%*"
+  local ruler = (" %03d:%03d | %s "):format(cursor[1], cursor[2] + 1, percentage)
+
+  return {
+    section = " %#" .. mode_mapping[vim.fn.mode()].hl .. "#" .. ruler .. "%*",
+    length = ruler:len() + 1,
+  }
 end
 
 return function()
-  return ("%s %s | %s | %s%%=%s | %s | %s %s"):format(
+  local data = {
     mode(),
     git(),
     diagnostics(),
@@ -125,6 +175,30 @@ return function()
     filetype(),
     clients(),
     format(),
-    position()
-  )
+    position(),
+  }
+
+  local function calculate(level)
+    level = level or 0
+
+    local length = 0
+    local max_priority = 0
+
+    for _, d in ipairs(data) do
+      max_priority = math.max(max_priority, d.priority or 0)
+      if not d.priority or d.priority > level then
+        length = length + d.length
+      end
+    end
+
+    if length > vim.o.columns and level ~= max_priority + 1 then
+      return calculate(level + 1)
+    end
+
+    return vim.tbl_map(function(d)
+      return (not d.priority or d.priority > level) and d.section or ""
+    end, data)
+  end
+
+  return ("%s%s%s%s%%=%s%s%s%s"):format(unpack(calculate()))
 end
