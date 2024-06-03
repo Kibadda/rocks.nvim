@@ -18,8 +18,8 @@ local function mode()
   local mod = mode_mapping[vim.fn.mode()]
 
   return {
-    section = "%#" .. mod.hl .. "# " .. mod.text .. " %* ",
-    length = #mod.text + 3,
+    section = "%#" .. mod.hl .. "# " .. mod.text .. " %#" .. mod.hl .. "Separator#%* ",
+    length = #mod.text + 4,
   }
 end
 
@@ -40,7 +40,7 @@ local function git()
   local data = {
     section = "%#StatusLineGitHead# " .. vim.g.git_head,
     length = #vim.g.git_head + 5,
-    priority = 4,
+    priority = 5,
   }
 
   if vim.g.git_head ~= "no git" then
@@ -50,7 +50,7 @@ local function git()
     data.length = data.length + diff_data.length
   end
 
-  data.section = data.section .. "%* | "
+  data.section = data.section .. " %#" .. mode_mapping[vim.fn.mode()].hl .. "Separator#%* "
 
   return data
 end
@@ -72,8 +72,10 @@ local function diagnostics()
       .. info
       .. "%#DiagnosticSignHint#H"
       .. hint
-      .. "%* | ",
-    length = tostring(error):len() + tostring(warning):len() + tostring(info):len() + tostring(hint):len() + 7,
+      .. " %#"
+      .. mode_mapping[vim.fn.mode()].hl
+      .. "Separator#%* ",
+    length = tostring(error):len() + tostring(warning):len() + tostring(info):len() + tostring(hint):len() + 8,
     priority = 3,
   }
 end
@@ -127,20 +129,22 @@ local function clients()
   local list = #names > 0 and table.concat(names, ", ") or "LS inactive"
 
   return {
-    section = " | %#StatusLineClients#" .. list .. "%*",
-    length = list:len() + 3,
+    section = " %#" .. mode_mapping[vim.fn.mode()].hl .. "Separator# %#StatusLineClients#" .. list .. "%*",
+    length = list:len() + 4,
     priority = 2,
   }
 end
 
 local function format()
   return {
-    section = " | %#"
+    section = " %#"
+      .. mode_mapping[vim.fn.mode()].hl
+      .. "Separator# %#"
       .. (vim.g.AutoFormat == 1 and "StatusLineFormatOn" or "StatusLineFormatOff")
       .. "#"
       .. (vim.g.AutoFormat == 1 and "✓" or "✗")
       .. "%*",
-    length = 4,
+    length = 5,
     priority = 1,
   }
 end
@@ -160,9 +164,11 @@ local function position()
 
   local ruler = (" %03d:%03d | %s "):format(cursor[1], cursor[2] + 1, percentage)
 
+  local mod = mode_mapping[vim.fn.mode()]
+
   return {
-    section = " %#" .. mode_mapping[vim.fn.mode()].hl .. "#" .. ruler .. "%*",
-    length = ruler:len() + 1,
+    section = " %#" .. mod.hl .. "Separator#%#" .. mod.hl .. "#" .. ruler .. "%*",
+    length = ruler:len() + 2,
   }
 end
 
