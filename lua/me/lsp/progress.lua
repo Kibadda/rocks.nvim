@@ -35,7 +35,7 @@ local function show_progress(win, buf, data)
   if progress_windows[data.params.token] then
     row = progress_windows[data.params.token].row
   else
-    row = vim.o.lines - 3 - vim.tbl_count(progress_windows)
+    row = vim.tbl_count(progress_windows)
   end
 
   ---@type vim.api.keyset.win_config
@@ -81,7 +81,7 @@ vim.api.nvim_create_autocmd("LspProgress", {
         progress_windows[token] = nil
         for _, r in pairs(progress_windows) do
           if r.row < row then
-            r.row = r.row + 1
+            r.row = r.row - 1
           end
         end
       end
