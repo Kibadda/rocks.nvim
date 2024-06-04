@@ -93,6 +93,8 @@ function Command:post_run(stdout)
       "Unpacking objects",
       "Writing objects",
       "Receiving objects",
+      "Enumerating objects",
+      "Refreshing index",
     }
 
     local highlight = "Green"
