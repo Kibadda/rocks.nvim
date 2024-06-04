@@ -10,10 +10,6 @@ local function buf_set_git(buf, git)
   vim.b[buf].git = git
 
   running = false
-
-  vim.schedule(function()
-    vim.api.nvim__redraw { statusline = true }
-  end)
 end
 
 vim.g.git_head = "no git"
