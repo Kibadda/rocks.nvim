@@ -21,6 +21,7 @@
 nvim-web-devicons = "0.100"
 nvim-surround = "2.1.5"
 rustaceanvim = "4.24.0"
+"session.nvim" = "1.1.0"
 
 "mini.starter" = "scm"
 "mini.pick" = "scm"

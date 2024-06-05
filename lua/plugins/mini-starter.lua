@@ -43,21 +43,15 @@ starter.setup {
       }
     end,
     function()
-      local items = {}
-
-      for name, type in vim.fs.dir(vim.g.session_dir) do
-        if type == "file" then
-          table.insert(items, {
-            name = name,
-            action = function()
-              vim.g.session_load(name)
-            end,
-            section = "sessions",
-          })
-        end
-      end
-
-      return items
+      return vim.tbl_map(function(session)
+        return {
+          name = session,
+          section = "sessions",
+          action = function()
+            require("session").load(session)
+          end,
+        }
+      end, require("session").list())
     end,
   },
   footer = function()
