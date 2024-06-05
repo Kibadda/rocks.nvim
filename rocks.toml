@@ -11,16 +11,16 @@
 # List of Neovim plugins to install alongside their versions.
 # If the plugin name contains a dot then you must add quotes to the key name!
 [plugins]
-"rocks.nvim" = "2.28.0"
-"rocks-config.nvim" = "1.5.0"
+"rocks.nvim" = "2.29.2"
+"rocks-config.nvim" = "1.6.0"
 "rocks-git.nvim" = "1.5.1"
-"which-key.nvim" = "1.6.0"
+"which-key.nvim" = "1.6.1"
 "mason.nvim" = "1.10.0"
-"conform.nvim" = "5.7.0"
+"conform.nvim" = "5.8.0"
 "nui.nvim" = "0.3.0"
 nvim-web-devicons = "0.100"
 nvim-surround = "2.1.5"
-rustaceanvim = "4.23.2"
+rustaceanvim = "4.24.0"
 
 "mini.starter" = "scm"
 "mini.pick" = "scm"
@@ -41,8 +41,11 @@ nvim-recorder = { git = "chrisgrieser/nvim-recorder" }
 vim-pasta = { git = "ku1ik/vim-pasta" }
 vim-repeat = { git = "tpope/vim-repeat" }
 vim-dotenv = { git = "tpope/vim-dotenv" }
-nvim-treesitter = { git = "nvim-treesitter/nvim-treesitter", branch = "main" }
 vim-kitty = { git = "fladson/vim-kitty" }
+
+[plugins.nvim-treesitter]
+git = "nvim-treesitter/nvim-treesitter"
+branch = "main"
 
 [config]
 plugins_dir = "plugins/"
