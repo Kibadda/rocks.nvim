@@ -29,3 +29,4 @@ vim.api.nvim_create_autocmd({ "FocusGained", "SessionLoadPost" }, {
 
 vim.keymap.set("n", "<Leader>Sn", "<Plug>(SessionNew)", { desc = "New" })
 vim.keymap.set("n", "<Leader>Sd", "<Plug>(SessionDelete)", { desc = "Delete" })
+vim.keymap.set("n", "<Leader>Sl", "<Plug>(SessionLoad)", { desc = "Load" })
