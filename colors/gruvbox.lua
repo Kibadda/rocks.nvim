@@ -280,7 +280,7 @@ local theme = {
   StatusLine = { fg = "#ddc7a1" },
   StatusLineNC = { fg = "#928374" },
   WinSeparator = { link = "VertSplit" },
-  VertSplit = { fg = colors.bright_black },
+  VertSplit = { fg = colors.bright_blue },
   Title = { fg = "#e78a4e", bold = true },
   Visual = { bg = colors.black },
   VisualNC = {},
