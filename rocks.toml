@@ -40,7 +40,6 @@ cmp-buffer = { git = "hrsh7th/cmp-buffer" }
 vim-kitty-navigator = { git = "knubie/vim-kitty-navigator" }
 nvim-recorder = { git = "chrisgrieser/nvim-recorder" }
 vim-pasta = { git = "ku1ik/vim-pasta" }
-vim-repeat = { git = "tpope/vim-repeat" }
 vim-dotenv = { git = "tpope/vim-dotenv" }
 vim-kitty = { git = "fladson/vim-kitty" }
 
