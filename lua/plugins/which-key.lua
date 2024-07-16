@@ -1,22 +1,12 @@
-local whichkey = require "which-key"
-
-whichkey.setup {
-  plugins = {
-    spelling = {
-      enabled = true,
-      suggestions = 20,
-    },
-  },
-  window = {
+require("which-key").setup {
+  preset = "classic",
+  win = {
     border = "single",
   },
-}
-
-whichkey.register {
-  ["<Leader>"] = {
-    name = "<Leader>",
-    s = { name = "Search" },
-    S = { name = "Session" },
-    l = { name = "Lsp" },
+  spec = {
+    { "<Leader>", group = "<Leader>" },
+    { "<Leader>S", group = "Session" },
+    { "<Leader>l", group = "Lsp" },
+    { "<Leader>s", group = "Search" },
   },
 }
