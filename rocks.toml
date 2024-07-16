@@ -1,47 +1,51 @@
-# This is your rocks.nvim plugins declaration file.
-# Here is a small yet pretty detailed example on how to use it:
-#
-# [plugins]
-# nvim-treesitter = "semver_version"  # e.g. "1.0.0"
-
-# List of non-Neovim rocks.
-# This includes things like `toml` or other lua packages.
-[rocks]
-
-# List of Neovim plugins to install alongside their versions.
-# If the plugin name contains a dot then you must add quotes to the key name!
 [plugins]
-"rocks.nvim" = "2.29.2"
-"rocks-config.nvim" = "1.6.0"
-"rocks-git.nvim" = "1.5.1"
-"which-key.nvim" = "1.6.1"
+"rocks.nvim" = "2.35.2"
+"rocks-config.nvim" = "2.1.4"
+"rocks-git.nvim" = "2.0.0"
+"which-key.nvim" = "3.5.0"
 "mason.nvim" = "1.10.0"
-"conform.nvim" = "5.8.0"
+"conform.nvim" = "6.0.0"
 "nui.nvim" = "0.3.0"
 nvim-web-devicons = "0.100"
 nvim-surround = "2.1.5"
-rustaceanvim = "4.24.0"
-"session.nvim" = "1.1.0"
-
-"mini.starter" = "scm"
-"mini.pick" = "scm"
-"mini.hipatterns" = "scm"
-"mini.diff" = "scm"
-"mini.ai" = "scm"
+rustaceanvim = "4.26.1"
+"session.nvim" = "2.0.1"
+"mini.starter" = "0.9.0"
+"mini.pick" = "0.13.0"
+"mini.hipatterns" = "0.9.0"
+"mini.diff" = "0.13.0"
+"mini.ai" = "0.9.0"
 nvim-autopairs = "scm"
 "plenary.nvim" = "scm"
 treesj = "scm"
+"lspkind.nvim" = "scm"
 
-nvim-cmp = { git = "hrsh7th/nvim-cmp" }
-cmp-nvim-lsp = { git = "hrsh7th/cmp-nvim-lsp" }
-cmp-path = { git = "hrsh7th/cmp-path" }
-cmp-buffer = { git = "hrsh7th/cmp-buffer" }
-"lspkind.nvim" = { git = "onsails/lspkind.nvim" }
-vim-kitty-navigator = { git = "knubie/vim-kitty-navigator" }
-nvim-recorder = { git = "chrisgrieser/nvim-recorder" }
-vim-pasta = { git = "ku1ik/vim-pasta" }
-vim-dotenv = { git = "tpope/vim-dotenv" }
-vim-kitty = { git = "fladson/vim-kitty" }
+[plugins.nvim-cmp]
+git = "hrsh7th/nvim-cmp"
+
+[plugins.cmp-nvim-lsp]
+git = "hrsh7th/cmp-nvim-lsp"
+
+[plugins.cmp-path]
+git = "hrsh7th/cmp-path"
+
+[plugins.cmp-buffer]
+git = "hrsh7th/cmp-buffer"
+
+[plugins.vim-kitty-navigator]
+git = "knubie/vim-kitty-navigator"
+
+[plugins.nvim-recorder]
+git = "chrisgrieser/nvim-recorder"
+
+[plugins.vim-pasta]
+git = "ku1ik/vim-pasta"
+
+[plugins.vim-dotenv]
+git = "tpope/vim-dotenv"
+
+[plugins.vim-kitty]
+git = "fladson/vim-kitty"
 
 [plugins.nvim-treesitter]
 git = "nvim-treesitter/nvim-treesitter"
