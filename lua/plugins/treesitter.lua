@@ -18,6 +18,7 @@ local parsers = {
   "sql",
   "toml",
   "typescript",
+  "c",
 
   {
     name = "smarty",
@@ -55,9 +56,12 @@ vim.api.nvim_create_autocmd("User", {
 add_parsers()
 
 require("nvim-treesitter").setup {
-  ensure_install = vim.iter(parsers):filter(function(parser)
-    return type(parser) == "string"
-  end):totable(),
+  ensure_install = vim
+    .iter(parsers)
+    :filter(function(parser)
+      return type(parser) == "string"
+    end)
+    :totable(),
 }
 
 vim.api.nvim_create_autocmd("FileType", {
