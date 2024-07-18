@@ -19,6 +19,7 @@ nvim-autopairs = "scm"
 "plenary.nvim" = "scm"
 treesj = "scm"
 "lspkind.nvim" = "scm"
+"git.nvim" = "2.0.0"
 
 [plugins.nvim-cmp]
 git = "hrsh7th/nvim-cmp"

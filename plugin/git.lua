@@ -1,8 +1,8 @@
-if vim.g.loaded_git then
+if vim.g.loaded_git_diff then
   return
 end
 
-vim.g.loaded_git = 1
+vim.g.loaded_git_diff = 1
 
 local running = false
 
@@ -80,31 +80,3 @@ vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "InsertLeave", "Buf
     end)
   end),
 })
-
-vim.keymap.set("n", "gG", function()
-  local remote = vim.trim(vim.system({ "git", "remote" }):wait().stdout)
-
-  if #remote == 0 then
-    vim.notify("no remote found", vim.log.levels.WARN)
-
-    return
-  end
-
-  local result = vim.system({ "git", "config", "--get", ("remote.%s.url"):format(remote) }):wait()
-
-  if result.code ~= 0 then
-    vim.notify("no url found for remote " .. remote, vim.log.levels.WARN)
-
-    return
-  end
-
-  local url = vim.trim(result.stdout)
-
-  if vim.startswith(url, "git@") then
-    url = url:gsub("%.git", ""):gsub(":", "/"):gsub("git@", "https://")
-  end
-
-  vim.ui.open(url)
-end, { desc = "Open Current Remote" })
-
-require "me.git"
