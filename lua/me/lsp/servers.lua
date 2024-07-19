@@ -13,18 +13,15 @@ local servers = {
         config.settings.Lua.workspace.library = config.settings.Lua.workspace.library or {}
 
         ---@diagnostic disable-next-line:param-type-mismatch
-        if params.rootPath:find(vim.fn.stdpath "config") then
+        if params.rootPath:find(string.gsub(vim.fn.stdpath "config", "%-", "%%-")) then
           config.settings.Lua.runtime.version = "LuaJIT"
 
           table.insert(config.settings.Lua.workspace.library, vim.env.VIMRUNTIME .. "/lua")
-          table.insert(config.settings.Lua.workspace.library, vim.fn.stdpath "data" .. "/rocks/share/lua/5.1")
 
-          for name, type in vim.fs.dir(vim.fn.stdpath "data" .. "/site/pack/rocks/start/") do
-            if type == "directory" then
-              table.insert(
-                config.settings.Lua.workspace.library,
-                vim.fn.stdpath "data" .. "/site/pack/rocks/start/" .. name .. "/lua"
-              )
+          for _, plugin in ipairs(require("lazy").plugins()) do
+            ---@diagnostic disable-next-line:param-type-mismatch
+            for _, p in ipairs(vim.fn.expand(plugin.dir .. "/lua", false, true)) do
+              table.insert(config.settings.Lua.workspace.library, p)
             end
           end
         end

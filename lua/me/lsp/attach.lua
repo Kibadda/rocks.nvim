@@ -25,7 +25,6 @@ autocmd("LspAttach", {
       elseif #opts.items == 1 then
         vim.lsp.util.jump_to_location(opts.items[1].user_data, client.offset_encoding)
       else
-        require("me.lazy").load "mini-pick"
         require("mini.pick").registry.lsp {
           title = "Lsp " .. vim.split(opts.title, " ")[1],
           items = opts.items,
@@ -132,9 +131,9 @@ autocmd("LspAttach", {
       {
         method = methods.textDocument_formatting,
         extra = function()
-          if not vim.b[bufnr].formatter then
-            vim.b[bufnr].formatter = vim.lsp.buf.format
-          end
+          -- if not vim.b[bufnr].formatter then
+          --   vim.b[bufnr].formatter = vim.lsp.buf.format
+          -- end
         end,
       },
     }

@@ -1,8 +1,12 @@
-require("mini.diff").setup {
-  mappings = {
-    textobject = "ih",
-  },
-  options = {
-    wrap_goto = true,
+return {
+  "echasnovski/mini.diff",
+  event = "VeryLazy",
+  opts = {
+    mappings = {
+      textobject = "ih",
+    },
+    options = {
+      wrap_goto = true,
+    },
   },
 }

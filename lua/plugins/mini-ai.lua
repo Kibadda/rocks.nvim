@@ -1,1 +1,5 @@
-require("mini.ai").setup {}
+return {
+  "echasnovski/mini.ai",
+  event = "VeryLazy",
+  opts = true,
+}
