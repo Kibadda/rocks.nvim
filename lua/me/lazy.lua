@@ -31,7 +31,7 @@ require("lazy").setup({
   dev = {
     patterns = { "Kibadda" },
     path = "~/Projects/Personal",
-    fallback = false,
+    fallback = true,
   },
   install = {
     missing = false,

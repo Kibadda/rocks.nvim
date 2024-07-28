@@ -19,6 +19,7 @@ local parsers = {
   "toml",
   "typescript",
   "c",
+  "nix",
 
   {
     name = "smarty",

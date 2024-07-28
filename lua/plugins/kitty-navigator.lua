@@ -1,5 +1,6 @@
 return {
   "knubie/vim-kitty-navigator",
+  build = "cp ./*.py ~/.config/kitty/",
   keys = {
     { "<C-h>", "<Cmd>KittyNavigateLeft<CR>", desc = "Kitty Left" },
     { "<C-j>", "<Cmd>KittyNavigateDown<CR>", desc = "Kitty Down" },

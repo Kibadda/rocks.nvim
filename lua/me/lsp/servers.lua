@@ -102,6 +102,14 @@ local servers = {
       cmd = { "typescript-language-server", "--stdio" },
     },
   },
+
+  {
+    filetypes = { "nix" },
+    root_markers = { "flake.nix" },
+    config = {
+      cmd = { "nil" },
+    },
+  },
 }
 
 return servers
